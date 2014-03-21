@@ -32,7 +32,7 @@ class HelloClient extends Thread{
     @Override
     public void run(){ 
         while(true){
-            System.out.println("Sending multicast...");
+            System.out.println("[Client] Sending multicast...");
             try {
                 s = new MulticastSocket(9999);
                 s.setTimeToLive(1);
@@ -62,7 +62,7 @@ class HelloClient extends Thread{
             }
             
             try {
-                sleep(HELLO_INTERVAL*1000);
+                sleep(2000); //depois mete-se o hello interval
             } catch (InterruptedException ex) {
                 Logger.getLogger(HelloClient.class.getName()).log(Level.SEVERE, null, ex);
             }
