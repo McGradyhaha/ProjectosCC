@@ -14,8 +14,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class HelloServer extends Thread{
-    public static final int helloInterval = 30;
-    
     public HelloTable tabela;
     
     private ObjectInputStream in;
@@ -25,27 +23,25 @@ class HelloServer extends Thread{
 
     public HelloServer(HelloTable tabela){
         this.tabela = tabela;
-        try {
-            serverSocket = new ServerSocket(9999);
-            this.in = new ObjectInputStream(connectionSocket.getInputStream());
-            
-        } catch (SocketException ex) {
-            Logger.getLogger(HelloServer.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(HelloServer.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
     
     @Override
     public void run(){
         while(true) {
             try {
+                serverSocket = new ServerSocket(9999);
                 connectionSocket = serverSocket.accept();
+                this.in = new ObjectInputStream(connectionSocket.getInputStream());
                 HelloPacket recebido = (HelloPacket) this.in.readObject();
                 System.out.println("Recebi um pacote Hello: " + recebido.toString());
-            } catch (IOException ex) {
+            } catch (    IOException | ClassNotFoundException ex) {
                 Logger.getLogger(HelloServer.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ClassNotFoundException ex) {
+            }
+            
+            try {
+                serverSocket.close();
+                connectionSocket.close();
+            } catch (IOException ex) {
                 Logger.getLogger(HelloServer.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

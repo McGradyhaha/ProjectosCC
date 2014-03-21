@@ -1,6 +1,4 @@
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +15,9 @@ public class HelloMaintenance extends Thread{
     private void cleanUp(){
         Long tempo = System.currentTimeMillis();
         
+        int limpos = 0;
+        int total = 0;
+        
         for(Entry<String, Long> entry : tabela.tempos.entrySet()) {
             String key = entry.getKey();
             Long value = entry.getValue();
@@ -25,8 +26,11 @@ public class HelloMaintenance extends Thread{
                 //expirou
                 tabela.vizinhos.remove(key);
                 tabela.tempos.remove(key);
+                limpos++;
             }
+            total++;
         }
+        System.out.println("[Debug] Limpou " + limpos + " de " + total);
     }
 
     @Override
@@ -35,7 +39,7 @@ public class HelloMaintenance extends Thread{
             cleanUp();
             
             try {
-                sleep(2000);
+                sleep(5000);
             } catch (InterruptedException ex) {
                 Logger.getLogger(HelloMaintenance.class.getName()).log(Level.SEVERE, null, ex);
             }

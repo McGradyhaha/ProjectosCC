@@ -12,9 +12,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class HelloClient extends Thread{
+    public static final int HELLO_INTERVAL = 30;
+    
     public HelloTable tabela;
     
     private InetAddress group;
+    
+    private MulticastSocket s;
     
     public HelloClient(HelloTable tabela){
         this.tabela = tabela;
@@ -28,8 +32,10 @@ class HelloClient extends Thread{
     @Override
     public void run(){ 
         while(true){
+            System.out.println("Sending multicast...");
             try {
-                MulticastSocket s = new MulticastSocket(9999);
+                s = new MulticastSocket(9999);
+                s.setTimeToLive(1);
                 s.joinGroup(group);
 
                 HelloPacket pacote = new HelloPacket(tabela.getVizinhos());
@@ -46,6 +52,18 @@ class HelloClient extends Thread{
             } catch (SocketException ex) {
                 Logger.getLogger(HelloClient.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
+                Logger.getLogger(HelloClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            try{
+                s.close();
+            }catch(Exception ex){
+                Logger.getLogger(HelloClient.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            try {
+                sleep(HELLO_INTERVAL*1000);
+            } catch (InterruptedException ex) {
                 Logger.getLogger(HelloClient.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

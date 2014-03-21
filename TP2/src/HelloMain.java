@@ -14,8 +14,13 @@ public class HelloMain {
         
         HelloServer servidor = new HelloServer(tabela);
         HelloClient cliente = new HelloClient(tabela);
+        HelloMaintenance maint = new HelloMaintenance(tabela);
         
         servidor.start();
+        
+        Thread.sleep(3000);
+        
         cliente.start();
+        maint.start();
     }
 }
