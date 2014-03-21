@@ -62,7 +62,7 @@ class HelloClient extends Thread{
             }
             
             try {
-                sleep(2000); //depois mete-se o hello interval
+                sleep(5000); //depois mete-se o hello interval
             } catch (InterruptedException ex) {
                 Logger.getLogger(HelloClient.class.getName()).log(Level.SEVERE, null, ex);
             }
