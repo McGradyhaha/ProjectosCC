@@ -32,7 +32,7 @@ class HelloClient extends Thread{
     @Override
     public void run(){ 
         while(true){
-            System.out.println("[Client] Sending multicast...");
+            //System.out.println("[Client] Sending multicast...");
             try {
                 s = new MulticastSocket(9999);
                 s.setTimeToLive(1);
@@ -43,6 +43,9 @@ class HelloClient extends Thread{
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ObjectOutputStream oos = new ObjectOutputStream(baos);
                 oos.writeObject(pacote);
+                
+                System.out.println("Enviando: " + pacote.getVizinhos().get(0));
+                
                 byte[] aEnviar = baos.toByteArray();
 
                 DatagramPacket p = new DatagramPacket(aEnviar, aEnviar.length, group, 9999);
@@ -62,7 +65,7 @@ class HelloClient extends Thread{
             }
             
             try {
-                sleep(5000); //depois mete-se o hello interval
+                sleep(1000); //depois mete-se o hello interval
             } catch (InterruptedException ex) {
                 Logger.getLogger(HelloClient.class.getName()).log(Level.SEVERE, null, ex);
             }

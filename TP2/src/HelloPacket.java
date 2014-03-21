@@ -7,10 +7,15 @@ public class HelloPacket implements Serializable {
 
     public HelloPacket(ArrayList<String> vizinhos) {
         this.vizinhos = vizinhos;
+        vizinhos.add(""+System.currentTimeMillis());
     }
 
+    public ArrayList<String> getVizinhos() {
+        return vizinhos;
+    }
+    
     @Override
     public String toString() {
-        return "Conheço os: " + vizinhos;
+        return "Conheço os (#" + vizinhos.size() + "): " + vizinhos.toString();
     }
 }

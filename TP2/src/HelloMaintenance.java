@@ -30,7 +30,7 @@ public class HelloMaintenance extends Thread{
             }
             total++;
         }
-        System.out.println("[Debug] Limpou " + limpos + " de " + total);
+        //System.out.println("[Debug] Limpou " + limpos + " de " + total);
     }
 
     @Override
