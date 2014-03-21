@@ -23,7 +23,8 @@ class HelloServer extends Thread{
     private ServerSocket serverSocket;
     
 
-    public HelloServer() {
+    public HelloServer(HelloTable tabela){
+        this.tabela = tabela;
         try {
             serverSocket = new ServerSocket(9999);
             this.in = new ObjectInputStream(connectionSocket.getInputStream());
@@ -37,7 +38,6 @@ class HelloServer extends Thread{
     
     @Override
     public void run(){
-        byte[] aReceber = new byte[1024];
         while(true) {
             try {
                 connectionSocket = serverSocket.accept();
@@ -48,21 +48,6 @@ class HelloServer extends Thread{
             } catch (ClassNotFoundException ex) {
                 Logger.getLogger(HelloServer.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            /*DatagramPacket resposta = new DatagramPacket(aReceber, aReceber.length);
-            try {
-                s.receive(resposta);
-            } catch (IOException ex) {
-                Logger.getLogger(HelloServer.class.getName()).log(Level.SEVERE, null, ex);
-            }*/
-            
-            
-
-
-            /*String pedidoString= new String(resposta.getData(), 0, resposta.getLength());
-
-            InetAddress IPAddress= resposta.getAddress();
-            int porta= resposta.getPort();*/
         }
     }
 }
