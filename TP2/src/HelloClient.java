@@ -6,8 +6,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,22 +36,36 @@ class HelloClient extends Thread{
         while(true){
             //System.out.println("[Client] Sending multicast...");
             try {
-                s = new MulticastSocket(9999);
-                s.setTimeToLive(1);
-                s.joinGroup(group);
-
-                HelloPacket pacote = new HelloPacket(tabela.getVizinhos());
-
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                oos.writeObject(pacote);
+                Enumeration interfaces = NetworkInterface.getNetworkInterfaces();
                 
-                System.out.println("Enviando: " + pacote.getVizinhos().get(0));
-                
-                byte[] aEnviar = baos.toByteArray();
+                // enviar por todas as interfaces de rede
+                while( interfaces.hasMoreElements() ){
+                    s = new MulticastSocket(9999);
+                    
+                    NetworkInterface ni = (NetworkInterface)interfaces.nextElement();
+                    
+                    if(ni.isLoopback() || !ni.isUp()) continue;
+                    
+                    
+                    //System.out.println("NetInterface: " + ni.getName() + ", " + ni.getDisplayName());
+                    
+                    s.setNetworkInterface( ni );
+                    s.setTimeToLive(1);
+                    s.joinGroup(group);
 
-                DatagramPacket p = new DatagramPacket(aEnviar, aEnviar.length, group, 9999);
-                s.send(p);   
+                    HelloPacket pacote = new HelloPacket(tabela.getVizinhos());
+
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(baos);
+                    oos.writeObject(pacote);
+
+                    System.out.println("Enviando (por " + ni.getDisplayName() + "): " + pacote.getVizinhos().get(0));
+
+                    byte[] aEnviar = baos.toByteArray();
+
+                    DatagramPacket p = new DatagramPacket(aEnviar, aEnviar.length, group, 9999);
+                    s.send(p);   
+                }
             } catch (UnknownHostException ex) {
                 Logger.getLogger(HelloClient.class.getName()).log(Level.SEVERE, null, ex);
             } catch (SocketException ex) {
