@@ -4,10 +4,12 @@ import java.util.ArrayList;
 
 public class HelloPacket implements Serializable {
     private ArrayList<String> vizinhos;
-
+    
     public HelloPacket(ArrayList<String> vizinhos) {
         this.vizinhos = vizinhos;
-        vizinhos.add(""+System.currentTimeMillis());
+        Double num = Math.random()*1000;
+        int distinguir = num.intValue();
+        vizinhos.add( distinguir + " - " + System.currentTimeMillis());
     }
 
     public ArrayList<String> getVizinhos() {
