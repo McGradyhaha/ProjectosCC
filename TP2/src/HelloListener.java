@@ -7,10 +7,13 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -46,13 +49,33 @@ class HelloListener extends Thread{
                     HelloPacket pacote = (HelloPacket)ois.readObject();
 
                     System.out.println("[Listener" + id + "] Got this: " + pacote.toString());
+                    
+                    
+                    if( pacote.responder ){
+                        InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
+                        
+                        DatagramSocket s = new DatagramSocket(9998);
+
+                        HelloPacket resposta = new HelloPacket(tabela.getVizinhos());
+                        resposta.responder = false;
+
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ObjectOutputStream oos = new ObjectOutputStream(baos);
+                        oos.writeObject(resposta);
+
+                        System.out.println("[Answer] Enviando: " + resposta.getVizinhos().get(0));
+
+                        byte[] aEnviar = baos.toByteArray();
+
+                        DatagramPacket p = new DatagramPacket(aEnviar, aEnviar.length, recv.getSocketAddress());
+
+                        s.send(p);
+                        s.close();
+                    }
+                    
+                    
+                    
                 } catch (    IOException | ClassNotFoundException ex) {
-                    Logger.getLogger(HelloListener.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                
-                try {
-                    sleep(5000);
-                } catch (InterruptedException ex) {
                     Logger.getLogger(HelloListener.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class HelloPacket implements Serializable {
     private ArrayList<String> vizinhos;
+    public boolean responder = true;
     
     public HelloPacket(ArrayList<String> vizinhos) {
         this.vizinhos = vizinhos;
