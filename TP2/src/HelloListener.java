@@ -14,7 +14,7 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class HelloServer extends Thread{
+class HelloListener extends Thread{
     public HelloTable tabela;
     
     private MulticastSocket mSocket;
@@ -22,12 +22,12 @@ class HelloServer extends Thread{
     private String id = "";
     
 
-    public HelloServer(HelloTable tabela, MulticastSocket mSocket){
+    public HelloListener(HelloTable tabela, MulticastSocket mSocket){
         this.tabela = tabela;
         this.mSocket = mSocket;
     }
     
-    public HelloServer(HelloTable tabela, MulticastSocket mSocket, int id){
+    public HelloListener(HelloTable tabela, MulticastSocket mSocket, int id){
         this(tabela,mSocket);
         this.id = "#"+id;
     }
@@ -36,24 +36,24 @@ class HelloServer extends Thread{
     public void run(){
             while(true) {
                 try {
-                    //System.out.println("[Server] get datagram packet");
+                    //System.out.println("[listener] get datagram packet");
                     DatagramPacket recv = new DatagramPacket(buf, buf.length); 
                     mSocket.receive(recv);
 
-                    //System.out.println("[Server] get stream");
+                    //System.out.println("[listener] get stream");
                     ByteArrayInputStream bais = new ByteArrayInputStream(buf);
                     ObjectInputStream ois = new ObjectInputStream(bais);
                     HelloPacket pacote = (HelloPacket)ois.readObject();
 
-                    System.out.println("[Server" + id + "] Got this: " + pacote.toString());
+                    System.out.println("[Listener" + id + "] Got this: " + pacote.toString());
                 } catch (    IOException | ClassNotFoundException ex) {
-                    Logger.getLogger(HelloServer.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(HelloListener.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 
                 try {
                     sleep(5000);
                 } catch (InterruptedException ex) {
-                    Logger.getLogger(HelloServer.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(HelloListener.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
     }

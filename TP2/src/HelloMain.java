@@ -15,17 +15,17 @@ import java.net.MulticastSocket;
  */
 public class HelloMain {
     public static void main(String[] args) throws Exception {
-        boolean onlyServer = false;
-        boolean onlyClient = false;
+        boolean onlyListener = false;
+        boolean onlyCaster = false;
         
         for(String arg : args){
-            if( arg.compareTo("server") == 0){
-                onlyServer = true;
+            if( arg.compareTo("listen") == 0){
+                onlyListener = true;
                 break;
             }
             
-            if( arg.compareTo("client") == 0){
-                onlyClient = true;
+            if( arg.compareTo("cast") == 0){
+                onlyCaster = true;
                 break;
             }
         }
@@ -37,17 +37,17 @@ public class HelloMain {
         
         
         
-        if( onlyClient ){
-            HelloClient cliente = new HelloClient(tabela);
-            cliente.start();
-        }else if(onlyServer){
+        if( onlyCaster ){
+            HelloMulticaster caster = new HelloMulticaster(tabela);
+            caster.start();
+        }else if(onlyListener){
             MulticastSocket mSocket = new MulticastSocket(9999);
             InetAddress group = InetAddress.getByName("FF02::1");
             mSocket.joinGroup(group);
 
-            HelloServer servidores[] = new HelloServer[10];
+            HelloListener servidores[] = new HelloListener[10];
             for(int i=0; i<servidores.length; i++){
-                servidores[i] = new HelloServer(tabela, mSocket, i);
+                servidores[i] = new HelloListener(tabela, mSocket, i);
                 servidores[i].start();
             }
             
@@ -60,14 +60,14 @@ public class HelloMain {
             InetAddress group = InetAddress.getByName("FF02::1");
             mSocket.joinGroup(group);
 
-            HelloServer servidores[] = new HelloServer[10];
+            HelloListener servidores[] = new HelloListener[10];
             for(int i=0; i<servidores.length; i++){
-                servidores[i] = new HelloServer(tabela, mSocket, i);
+                servidores[i] = new HelloListener(tabela, mSocket, i);
                 servidores[i].start();
             }
 
-            HelloClient cliente = new HelloClient(tabela);
-            cliente.start();
+            HelloMulticaster caster = new HelloMulticaster(tabela);
+            caster.start();
             
             sleep(Integer.MAX_VALUE);
             System.out.println("[Server] closing socket");
