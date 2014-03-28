@@ -18,8 +18,6 @@ public class Shutdown extends Thread{
     
     @Override
     public void run() {
-        
-        System.out.println("\nShutting down...");
         for(Thread t : threads)
             if( t.isAlive() && !t.isInterrupted())
                 t.interrupt();
@@ -27,7 +25,7 @@ public class Shutdown extends Thread{
         for(DatagramSocket s : sockets)
             if( !s.isClosed() )
                 s.close();
-        System.out.println("Nap time..");
+        System.out.println("\nNap time..");
         
         
     }

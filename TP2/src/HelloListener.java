@@ -7,6 +7,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,6 +37,18 @@ class HelloListener extends Thread{
                     //System.out.println("[listener] get datagram packet");
                     DatagramPacket recv = new DatagramPacket(buf, buf.length); 
                     mSocket.receive(recv);
+                    
+                    
+                    // se o datagrama recebido tiver origem num dos endereços da própria máquina, ignorar
+                    Enumeration<NetworkInterface> interfaces =  NetworkInterface.getNetworkInterfaces();
+                    while( interfaces.hasMoreElements() && recv != null ){
+                        Enumeration<InetAddress> addresses = interfaces.nextElement().getInetAddresses();
+                        while( addresses.hasMoreElements() && recv != null)
+                            if( recv.getAddress().getHostAddress().equals(addresses.nextElement().getHostAddress()))
+                                recv = null;
+                    }
+                    if(recv == null) continue;
+                    
 
                     //System.out.println("[listener] get stream");
                     ByteArrayInputStream bais = new ByteArrayInputStream(buf);
@@ -46,7 +60,6 @@ class HelloListener extends Thread{
                     
                     
                     this.tabela.novaEntrada(recv.getAddress().getHostAddress(), pacote.getVizinhos());
-                    
                     
                     if( pacote.responder ){
                         InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
@@ -72,6 +85,7 @@ class HelloListener extends Thread{
                         s.close();
                     }
                     
+                    tabela.print();
                     
                     
                 } catch (    IOException | ClassNotFoundException ex) {

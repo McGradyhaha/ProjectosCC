@@ -59,7 +59,7 @@ class HelloMulticaster extends Thread{
                     oos.writeObject(pacote);
 
                     //System.out.println("[Caster] Enviando vizinhos..");
-                    System.out.println("*");
+                    tabela.print();
 
                     byte[] aEnviar = baos.toByteArray();
 

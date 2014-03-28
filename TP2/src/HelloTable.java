@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 public class HelloTable {
     public static final int HELLO_TIMEOUT = 3; //segundos
-    private static int count = 0;
     
     // o vizinho com ip K tem vizinhos V
     public HashMap<String, ArrayList<String>> vizinhos;
@@ -24,11 +23,11 @@ public class HelloTable {
     public synchronized void novaEntrada(String origem, ArrayList<String> novos) throws IOException{
         vizinhos.put(origem, novos);
         tempos.put(origem, System.currentTimeMillis());
-        
+    }
+    
+    public synchronized void print(){
         System.out.print("\033[H\033[2J"); //clear console
         System.out.flush();
-        System.out.println("Count: " + count);
-        count++;
         System.out.println("[tabela] recebido:");
         for( String chave : vizinhos.keySet()){
             System.out.println("   " + chave + " (age: " + (System.currentTimeMillis()-tempos.get(chave))/1000 + " s)");
