@@ -51,6 +51,7 @@ class HelloListener extends Thread{
                     if( pacote.responder ){
                         InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
                         
+                        // 0 - qualquer porta livre (isto é a porta local, não é relevante e pode ser qualquer)
                         DatagramSocket s = new DatagramSocket(0);
 
                         HelloPacket resposta = new HelloPacket(tabela.getVizinhos());

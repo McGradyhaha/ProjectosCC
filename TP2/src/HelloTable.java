@@ -25,7 +25,7 @@ public class HelloTable {
         vizinhos.put(origem, novos);
         tempos.put(origem, System.currentTimeMillis());
         
-        System.out.print("\033[H\033[2J");
+        System.out.print("\033[H\033[2J"); //clear console
         System.out.flush();
         System.out.println("Count: " + count);
         count++;
