@@ -2,6 +2,7 @@
 import static java.lang.Thread.sleep;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.ArrayList;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -14,6 +15,8 @@ import java.net.MulticastSocket;
  * @author Chalkos
  */
 public class HelloMain {
+    public static final int numero_hello_listeners = 10;
+    
     public static void main(String[] args) throws Exception {
         boolean onlyListener = false;
         boolean onlyCaster = false;
@@ -30,7 +33,6 @@ public class HelloMain {
             }
         }
         
-        
         // hello manutenção da tabela
         HelloTable tabela = new HelloTable();
         HelloMaintenance maint = new HelloMaintenance(tabela);
@@ -43,36 +45,28 @@ public class HelloMain {
         MulticastSocket mSocket = new MulticastSocket(9999);
         InetAddress group = InetAddress.getByName("FF02::1");
         mSocket.joinGroup(group);
-        HelloListener servidores[] = new HelloListener[10];
-        for(int i=0; i<servidores.length; i++)
-            servidores[i] = new HelloListener(tabela, mSocket, i);
         
-            
+        ArrayList<HelloListener> listeners = new ArrayList<>();
+        
+        for(int i=0; i<numero_hello_listeners; i++)
+            listeners.add(new HelloListener(tabela, mSocket, i));
         
         // iniciar listener ou caster de acordo com os argumentos
-        if( onlyCaster || (onlyListener == false && onlyCaster == false)){
+        if( onlyCaster || (onlyListener == false && onlyCaster == false))
             caster.start();
-        }
         
-        if(onlyListener || (onlyListener == false && onlyCaster == false)){
-            for(int i=0; i<servidores.length; i++){
-                servidores[i] = new HelloListener(tabela, mSocket, i);
-                servidores[i].start();
-            }
-        }
+        if(onlyListener || (onlyListener == false && onlyCaster == false))
+            for(HelloListener listener : listeners)
+                listener.start();        
         
         
         
-        
-        
-        
-            
-            /*
-        Runtime.getRuntime().addShutdownHook(
-                new Shutdown()
-        );*/
+        // fechar sockets e parar threads
+        Shutdown shutdownHook = new Shutdown();
+        shutdownHook.sockets.add(mSocket);
+        shutdownHook.threads.add(maint);
+        shutdownHook.threads.add(caster);
+        shutdownHook.threads.addAll(listeners);
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
-    
-    
-    
 }

@@ -1,6 +1,12 @@
 
+import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -13,31 +19,22 @@ import java.net.MulticastSocket;
  * @author Chalkos
  */
 public class Shutdown extends Thread{
-    
-    //cenas que o Thread precisa para poder terminar o programa de forma decente
-    private HelloTable hello_tabela;
-    private HelloMaintenance hello_maintenance;
-    private HelloMulticaster hello_multicaster;
-    private MulticastSocket hello_udp_socket;
-    private InetAddress hello_multicast_group;
-    private HelloListener hello_servidores[];
-
-    public Shutdown(HelloTable hello_tabela, HelloMaintenance hello_maintenance, HelloMulticaster hello_multicaster, MulticastSocket hello_udp_socket, InetAddress hello_multicast_group, HelloListener[] hello_servidores) {
-        super();
-        this.hello_tabela = hello_tabela;
-        this.hello_maintenance = hello_maintenance;
-        this.hello_multicaster = hello_multicaster;
-        this.hello_udp_socket = hello_udp_socket;
-        this.hello_multicast_group = hello_multicast_group;
-        this.hello_servidores = hello_servidores;
-    }
+    public ArrayList<Thread> threads = new ArrayList<>();
+    public ArrayList<DatagramSocket> sockets = new ArrayList<>();
     
     @Override
     public void run() {
         
+        System.out.println("\nShutting down...");
+        for(Thread t : threads)
+            if( t.isAlive() && !t.isInterrupted())
+                t.interrupt();
         
+        for(DatagramSocket s : sockets)
+            if( !s.isClosed() )
+                s.close();
+        System.out.println("Nap time..");
         
-        System.out.println("Shutting down");
         
     }
     
