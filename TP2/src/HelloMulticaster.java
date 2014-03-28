@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class HelloMulticaster extends Thread{
-    public static final int HELLO_INTERVAL = 30;
+    public static final int HELLO_INTERVAL = 1; //segundos
     
     public HelloTable tabela;
     
@@ -59,7 +59,8 @@ class HelloMulticaster extends Thread{
                     ObjectOutputStream oos = new ObjectOutputStream(baos);
                     oos.writeObject(pacote);
 
-                    System.out.println("[Caster] Enviando (por " + ni.getDisplayName() + "): " + pacote.getVizinhos().get(0));
+                    //System.out.println("[Caster] Enviando vizinhos..");
+                    System.out.println("*");
 
                     byte[] aEnviar = baos.toByteArray();
 
@@ -81,7 +82,7 @@ class HelloMulticaster extends Thread{
             }
             
             try {
-                sleep(2500); //depois mete-se o hello interval
+                sleep(HELLO_INTERVAL*1000); //depois mete-se o hello interval
             } catch (InterruptedException ex) {
                 Logger.getLogger(HelloMulticaster.class.getName()).log(Level.SEVERE, null, ex);
             }

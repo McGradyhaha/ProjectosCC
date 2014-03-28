@@ -8,9 +8,10 @@ public class HelloPacket implements Serializable {
     
     public HelloPacket(ArrayList<String> vizinhos) {
         this.vizinhos = vizinhos;
-        Double num = Math.random()*1000;
-        int distinguir = num.intValue();
-        vizinhos.add( distinguir + " - " + System.currentTimeMillis());
+        
+        //Double num = Math.random()*1000;
+        //int distinguir = num.intValue();
+        //vizinhos.add( distinguir + " - " + System.currentTimeMillis());
     }
 
     public ArrayList<String> getVizinhos() {

@@ -48,13 +48,17 @@ class HelloListener extends Thread{
                     ObjectInputStream ois = new ObjectInputStream(bais);
                     HelloPacket pacote = (HelloPacket)ois.readObject();
 
-                    System.out.println("[Listener" + id + "] Got this: " + pacote.toString());
+                    //System.out.println("[Listener" + id + "] Got package!");
+                    System.out.println("got.");
+                    
+                    
+                    this.tabela.novaEntrada(recv.getAddress().getHostAddress(), pacote.getVizinhos());
                     
                     
                     if( pacote.responder ){
                         InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
                         
-                        DatagramSocket s = new DatagramSocket(9998);
+                        DatagramSocket s = new DatagramSocket(0);
 
                         HelloPacket resposta = new HelloPacket(tabela.getVizinhos());
                         resposta.responder = false;
@@ -63,7 +67,8 @@ class HelloListener extends Thread{
                         ObjectOutputStream oos = new ObjectOutputStream(baos);
                         oos.writeObject(resposta);
 
-                        System.out.println("[Answer] Enviando: " + resposta.getVizinhos().get(0));
+                        //System.out.println("[Listener" + id + "] Respondeu.");
+                        System.out.println("sent.");
 
                         byte[] aEnviar = baos.toByteArray();
 

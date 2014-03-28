@@ -31,53 +31,48 @@ public class HelloMain {
         }
         
         
+        // hello manutenção da tabela
         HelloTable tabela = new HelloTable();
+        HelloMaintenance maint = new HelloMaintenance(tabela);
+        maint.start();
         
+        // hello multicaster
+        HelloMulticaster caster = new HelloMulticaster(tabela);
         
+        // hello escutar e responder
+        MulticastSocket mSocket = new MulticastSocket(9999);
+        InetAddress group = InetAddress.getByName("FF02::1");
+        mSocket.joinGroup(group);
+        HelloListener servidores[] = new HelloListener[10];
+        for(int i=0; i<servidores.length; i++)
+            servidores[i] = new HelloListener(tabela, mSocket, i);
         
+            
         
-        
-        if( onlyCaster ){
-            HelloMulticaster caster = new HelloMulticaster(tabela);
+        // iniciar listener ou caster de acordo com os argumentos
+        if( onlyCaster || (onlyListener == false && onlyCaster == false)){
             caster.start();
-        }else if(onlyListener){
-            MulticastSocket mSocket = new MulticastSocket(9999);
-            InetAddress group = InetAddress.getByName("FF02::1");
-            mSocket.joinGroup(group);
-
-            HelloListener servidores[] = new HelloListener[10];
+        }
+        
+        if(onlyListener || (onlyListener == false && onlyCaster == false)){
             for(int i=0; i<servidores.length; i++){
                 servidores[i] = new HelloListener(tabela, mSocket, i);
                 servidores[i].start();
             }
-            
-            sleep(Integer.MAX_VALUE);
-            System.out.println("[Server] closing socket");
-            mSocket.leaveGroup(group);
-            mSocket.close();
-        }else{
-            MulticastSocket mSocket = new MulticastSocket(9999);
-            InetAddress group = InetAddress.getByName("FF02::1");
-            mSocket.joinGroup(group);
-
-            HelloListener servidores[] = new HelloListener[10];
-            for(int i=0; i<servidores.length; i++){
-                servidores[i] = new HelloListener(tabela, mSocket, i);
-                servidores[i].start();
-            }
-
-            HelloMulticaster caster = new HelloMulticaster(tabela);
-            caster.start();
-            
-            sleep(Integer.MAX_VALUE);
-            System.out.println("[Server] closing socket");
-            mSocket.leaveGroup(group);
-            mSocket.close();
         }
         
         
         
-        HelloMaintenance maint = new HelloMaintenance(tabela);
-        maint.start();
+        
+        
+        
+            
+            /*
+        Runtime.getRuntime().addShutdownHook(
+                new Shutdown()
+        );*/
     }
+    
+    
+    
 }
