@@ -12,16 +12,17 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class HelloMulticaster extends Thread{
+class HelloMulticaster extends Thread {
+
     public static final int HELLO_INTERVAL = 1; //segundos
-    
+
     public HelloTable tabela;
-    
+
     private InetAddress group;
-    
+
     private MulticastSocket s;
-    
-    public HelloMulticaster(HelloTable tabela){
+
+    public HelloMulticaster(HelloTable tabela) {
         this.tabela = tabela;
         try {
             group = InetAddress.getByName("FF02::1");
@@ -29,26 +30,26 @@ class HelloMulticaster extends Thread{
             Logger.getLogger(HelloMulticaster.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     @Override
-    public void run(){ 
-        while(true){
+    public void run() {
+        while (true) {
             //System.out.println("[Caster] Sending multicast...");
             try {
                 Enumeration interfaces = NetworkInterface.getNetworkInterfaces();
-                
+
                 // enviar por todas as interfaces de rede
-                while( interfaces.hasMoreElements() ){
+                while (interfaces.hasMoreElements()) {
                     s = new MulticastSocket(9999);
-                    
-                    NetworkInterface ni = (NetworkInterface)interfaces.nextElement();
-                    
-                    if(ni.isLoopback() || !ni.isUp()) continue;
-                    
-                    
+
+                    NetworkInterface ni = (NetworkInterface) interfaces.nextElement();
+
+                    if (ni.isLoopback() || !ni.isUp()) {
+                        continue;
+                    }
+
                     //System.out.println("NetInterface: " + ni.getName() + ", " + ni.getDisplayName());
-                    
-                    s.setNetworkInterface( ni );
+                    s.setNetworkInterface(ni);
                     s.setTimeToLive(1);
                     s.joinGroup(group);
 
@@ -64,7 +65,7 @@ class HelloMulticaster extends Thread{
                     byte[] aEnviar = baos.toByteArray();
 
                     DatagramPacket p = new DatagramPacket(aEnviar, aEnviar.length, group, 9999);
-                    s.send(p);   
+                    s.send(p);
                 }
             } catch (UnknownHostException ex) {
                 Logger.getLogger(HelloMulticaster.class.getName()).log(Level.SEVERE, null, ex);
@@ -73,18 +74,18 @@ class HelloMulticaster extends Thread{
             } catch (IOException ex) {
                 Logger.getLogger(HelloMulticaster.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-            try{
+
+            try {
                 s.close();
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 Logger.getLogger(HelloMulticaster.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
+
             try {
-                sleep(HELLO_INTERVAL*1000); //depois mete-se o hello interval
+                sleep(HELLO_INTERVAL * 1000); //depois mete-se o hello interval
             } catch (InterruptedException ex) {
                 Logger.getLogger(HelloMulticaster.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    } 
-} 
+    }
+}
