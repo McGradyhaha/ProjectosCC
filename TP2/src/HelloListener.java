@@ -1,3 +1,4 @@
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,72 +11,68 @@ import java.net.MulticastSocket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class HelloListener extends Thread{
-    public HelloTable tabela;
-    
-    private MulticastSocket mSocket;
-    private byte[] buf = new byte[1000]; 
-    private String id = "";
-    
+class HelloListener extends Thread {
 
-    public HelloListener(HelloTable tabela, MulticastSocket mSocket){
+    public HelloTable tabela;
+
+    private MulticastSocket mSocket;
+    private byte[] buf = new byte[1000];
+    private String id = "";
+
+    public HelloListener(HelloTable tabela, MulticastSocket mSocket) {
         this.tabela = tabela;
         this.mSocket = mSocket;
     }
-    
-    public HelloListener(HelloTable tabela, MulticastSocket mSocket, int id){
-        this(tabela,mSocket);
-        this.id = "#"+id;
+
+    public HelloListener(HelloTable tabela, MulticastSocket mSocket, int id) {
+        this(tabela, mSocket);
+        this.id = "#" + id;
     }
-    
+
     @Override
-    public void run(){
-            while(true) {
-                try {
-                    //System.out.println("[listener] get datagram packet");
-                    DatagramPacket recv = new DatagramPacket(buf, buf.length); 
-                    mSocket.receive(recv);
+    public void run() {
+        while (true) {
+            try {
+                //System.out.println("[listener] get datagram packet");
+                DatagramPacket recv = new DatagramPacket(buf, buf.length);
+                mSocket.receive(recv);
 
-                    //System.out.println("[listener] get stream");
-                    ByteArrayInputStream bais = new ByteArrayInputStream(buf);
-                    ObjectInputStream ois = new ObjectInputStream(bais);
-                    HelloPacket pacote = (HelloPacket)ois.readObject();
+                //System.out.println("[listener] get stream");
+                ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+                ObjectInputStream ois = new ObjectInputStream(bais);
+                HelloPacket pacote = (HelloPacket) ois.readObject();
 
-                    //System.out.println("[Listener" + id + "] Got package!");
-                    System.out.println("got.");
-                    
-                    
-                    this.tabela.novaEntrada(recv.getAddress().getHostAddress(), pacote.getVizinhos());
-                    
-                    
-                    if( pacote.responder ){
-                        InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
-                        
-                        DatagramSocket s = new DatagramSocket(0);
+                //System.out.println("[Listener" + id + "] Got package!");
+                System.out.println("got.");
 
-                        HelloPacket resposta = new HelloPacket(tabela.getVizinhos());
-                        resposta.responder = false;
+                this.tabela.novaEntrada(recv.getAddress().getHostAddress(), pacote.getVizinhos());
 
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        ObjectOutputStream oos = new ObjectOutputStream(baos);
-                        oos.writeObject(resposta);
+                if (pacote.responder) {
+                    InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
 
-                        //System.out.println("[Listener" + id + "] Respondeu.");
-                        System.out.println("sent.");
+                    DatagramSocket s = new DatagramSocket(0);
 
-                        byte[] aEnviar = baos.toByteArray();
+                    HelloPacket resposta = new HelloPacket(tabela.getVizinhos());
+                    resposta.responder = false;
 
-                        DatagramPacket p = new DatagramPacket(aEnviar, aEnviar.length, recv.getSocketAddress());
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(baos);
+                    oos.writeObject(resposta);
 
-                        s.send(p);
-                        s.close();
-                    }
-                    
-                    
-                    
-                } catch (    IOException | ClassNotFoundException ex) {
-                    Logger.getLogger(HelloListener.class.getName()).log(Level.SEVERE, null, ex);
+                    //System.out.println("[Listener" + id + "] Respondeu.");
+                    System.out.println("sent.");
+
+                    byte[] aEnviar = baos.toByteArray();
+
+                    DatagramPacket p = new DatagramPacket(aEnviar, aEnviar.length, recv.getSocketAddress());
+
+                    s.send(p);
+                    s.close();
                 }
+
+            } catch (IOException | ClassNotFoundException ex) {
+                Logger.getLogger(HelloListener.class.getName()).log(Level.SEVERE, null, ex);
             }
+        }
     }
 }
