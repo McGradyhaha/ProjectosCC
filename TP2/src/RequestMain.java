@@ -14,7 +14,7 @@ import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class HelloMulticaster extends Thread {
+class RequestMain extends Thread {
 
     public static final int HELLO_INTERVAL = 1; //segundos
 
@@ -24,7 +24,7 @@ class HelloMulticaster extends Thread {
 
     private MulticastSocket s;
 
-    public HelloMulticaster(HelloTable tabela) {
+    public RequestMain(HelloTable tabela) {
         this.tabela = tabela;
         try {
             group = InetAddress.getByName("FF02::1");
@@ -83,9 +83,13 @@ class HelloMulticaster extends Thread {
 
                     byte[] aEnviar2 = baost.toByteArray();
 
-                    DatagramPacket p2 = new DatagramPacket(aEnviar2, aEnviar2.length, group, 9999);
+                    for (String vizinho : tabela.getVizinhos()) {
 
-                    s.send(p2);
+                        DatagramPacket p2 = new DatagramPacket(aEnviar2, aEnviar2.length, InetAddress.getByName(vizinho), 9999);
+
+                        s.send(p2);
+                        s.close();
+                    }
                     s.close();
 
                 }

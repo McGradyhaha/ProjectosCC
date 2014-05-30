@@ -11,12 +11,30 @@ public class RouteReplyPacket implements Serializable {
         this.rota = rota;
     }
 
-    public ArrayList<String> getVizinhos() {
-        return rota;
+    public RouteReplyPacket() {
+        this.rota = new ArrayList<>();
+        this.nsaltos = 0;
+    }
+
+    public RouteReplyPacket(RouteReplyPacket pacote) {
+        this.rota = pacote.getRota();
+        this.nsaltos = pacote.getNsaltos();
+    }
+
+    public ArrayList<String> getRota() {
+        return new ArrayList<>(rota);
     }
 
     public int getNsaltos() {
         return nsaltos;
+    }
+
+    public void addNodo(String nodo) {
+        this.rota.add(nodo);
+    }
+
+    public int getRotaSize() {
+        return rota.size();
     }
 
     public void incNsaltos() {

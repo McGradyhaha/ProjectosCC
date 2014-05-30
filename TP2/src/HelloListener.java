@@ -11,7 +11,15 @@ import java.net.MulticastSocket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 class HelloListener extends Thread {
+
+    SimpleDateFormat ssd = new SimpleDateFormat();
+    GregorianCalendar sdd = new GregorianCalendar();
 
     public HelloTable tabela;
 
@@ -22,6 +30,9 @@ class HelloListener extends Thread {
     public HelloListener(HelloTable tabela, MulticastSocket mSocket) {
         this.tabela = tabela;
         this.mSocket = mSocket;
+        StringBuilder sddd = new StringBuilder();
+
+        sdd.add(Calendar.YEAR, MIN_PRIORITY);
     }
 
     public HelloListener(HelloTable tabela, MulticastSocket mSocket, int id) {
@@ -37,39 +48,106 @@ class HelloListener extends Thread {
                 DatagramPacket recv = new DatagramPacket(buf, buf.length);
                 mSocket.receive(recv);
 
+                String enviado_por = recv.getAddress().toString();//Saber quem enviou o Pacote
+
                 //System.out.println("[listener] get stream");
                 ByteArrayInputStream bais = new ByteArrayInputStream(buf);
                 ObjectInputStream ois = new ObjectInputStream(bais);
-                HelloPacket pacote = (HelloPacket) ois.readObject();
+                Object o = ois.readObject();
 
-                //System.out.println("[Listener" + id + "] Got package!");
-                System.out.println("got.");
+                HelloPacket pacote = null;
+                RouteReplyPacket routerep = null;
+                RouteRequestPacket routereq = null;
 
-                this.tabela.novaEntrada(recv.getAddress().getHostAddress(), pacote.getVizinhos());
+                pacote = (HelloPacket) o;
+                routerep = (RouteReplyPacket) o;
+                routereq = (RouteRequestPacket) o;
 
-                if (pacote.responder) {
-                    InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
+                if (pacote != null) {
+                    //System.out.println("[Listener" + id + "] Got package!");
+                    System.out.println("Recebi um HelloPacket");
 
-                    DatagramSocket s = new DatagramSocket(0);
+                    this.tabela.novaEntrada(recv.getAddress().getHostAddress(), pacote.getVizinhos());
 
-                    HelloPacket resposta = new HelloPacket(tabela.getVizinhos());
-                    resposta.responder = false;
+                    if (pacote.responder) {
+                        InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
 
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    ObjectOutputStream oos = new ObjectOutputStream(baos);
-                    oos.writeObject(resposta);
+                        DatagramSocket s = new DatagramSocket(0);
 
-                    //System.out.println("[Listener" + id + "] Respondeu.");
-                    System.out.println("sent.");
+                        HelloPacket resposta = new HelloPacket(tabela.getVizinhos());
+                        resposta.responder = false;
 
-                    byte[] aEnviar = baos.toByteArray();
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ObjectOutputStream oos = new ObjectOutputStream(baos);
+                        oos.writeObject(resposta);
 
-                    DatagramPacket p = new DatagramPacket(aEnviar, aEnviar.length, recv.getSocketAddress());
+                        //System.out.println("[Listener" + id + "] Respondeu.");
+                        System.out.println("Enviei um HelloPacket");
 
-                    s.send(p);
-                    s.close();
+                        byte[] aEnviar = baos.toByteArray();
+
+                        DatagramPacket p = new DatagramPacket(aEnviar, aEnviar.length, recv.getSocketAddress());
+
+                        s.send(p);
+                        s.close();
+                    }
+                } else if (routereq != null) {
+
+                    //System.out.println("[Listener" + id + "] Got package!");
+                    System.out.println("Recebi um RouteRequestPacket");
+
+                    String meuinet = InetAddress.getLocalHost().toString();
+
+                    //Verificar se já veio por aqui
+                    for (String s : routereq.getRota()) {
+                        if (s.compareTo(meuinet) == 0)//Já passou por cá
+                        {
+                            break;//Pára tudo
+                        }
+                    }
+
+                    if (routereq.getMaxSaltos() > routereq.getNsaltos()) {//Ainda não está no último
+
+                        InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
+
+                        DatagramSocket s = new DatagramSocket(0);
+
+                        RouteReplyPacket resposta = new RouteReplyPacket(routerep);
+
+                        resposta.incNsaltos();//Incrementar o número de saltos
+                        resposta.addNodo(meuinet);//Não sei se é INET ou MAC
+
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ObjectOutputStream oos = new ObjectOutputStream(baos);
+                        oos.writeObject(resposta);
+                        byte[] aEnviar = baos.toByteArray();
+
+                        //System.out.println("[Listener" + id + "] Respondeu.");
+                        System.out.println("Enviei um RouteReplyPacket");
+
+                        if (routereq.getDestino().compareTo(meuinet) == 0)//O Destino sou eu
+                        {
+                            RouteReplyPacket reply = new RouteReplyPacket(routereq.getRota());
+                            reply.addNodo(meuinet);
+                            DatagramPacket p2 = new DatagramPacket(aEnviar, aEnviar.length, InetAddress.getByName(reply.getRota().get(0)), 999);
+
+                            s.send(p2);
+                            s.close();
+                        } else {
+                            for (String vizinho : tabela.getVizinhos()) {
+
+                                if (routereq.getRota().contains(vizinho) == false)//Se o vizinho não está na lista de rota do pacote recebido
+                                {
+                                    DatagramPacket p2 = new DatagramPacket(aEnviar, aEnviar.length, InetAddress.getByName(vizinho), 999);
+
+                                    s.send(p2);
+                                    s.close();
+                                }
+                            }
+                        }
+                    }
+
                 }
-
             } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(HelloListener.class.getName()).log(Level.SEVERE, null, ex);
             }

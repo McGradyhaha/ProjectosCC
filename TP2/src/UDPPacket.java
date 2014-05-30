@@ -3,19 +3,19 @@
  *
  * @author Win7
  */
-public class UDPPackage {
+public class UDPPacket {
 
     private RouteReplyPacket reply;
     private RouteRequestPacket request;
     private HelloPacket hello;
 
-    public UDPPackage(RouteReplyPacket reply, RouteRequestPacket request, HelloPacket hello) {
+    public UDPPacket(RouteReplyPacket reply, RouteRequestPacket request, HelloPacket hello) {
         this.reply = reply;
         this.request = request;
         this.hello = hello;
     }
 
-    public UDPPackage() {
+    public UDPPacket() {
         this.reply = null;
         this.request = null;
         this.hello = null;
