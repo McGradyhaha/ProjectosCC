@@ -1,0 +1,111 @@
+\documentclass[11pt, a4paper, oneside]{article}
+
+% hifenização e outras especificações para português
+\usepackage[portuguese]{babel}
+
+% hiperligações
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, urlcolor=blue, linkcolor=black}
+
+% escrever acentos e coisas do género sem que o latex se desoriente
+\usepackage[utf8]{inputenc}
+
+% para ter imagens, depois define a directoria de imagens
+\usepackage{graphicx}
+\graphicspath{{./imagens/}}
+
+\usepackage[labelformat=simple]{caption}
+\usepackage[labelformat=empty]{subcaption}
+
+% para ter a informação de quantas páginas tem o documento
+\usepackage{lastpage}
+
+% definir o cabeçalho e rodapé
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead[L]{\small{Trabalho Prático Nº2}}
+\fancyhead[R]{\small{Comunicações por Computador}}
+
+% ter enumerações alinhadas
+\usepackage{enumitem}
+
+% escrever algoritmos
+\usepackage[algoruled]{algorithm2e}
+
+% mais cores predefinidas
+\usepackage[usenames,dvipsnames]{color}
+
+% definir comandos especiais
+\newcommand\doubleplus{+\kern-1.3ex+\kern0.8ex} %
+
+\newcommand{\todo}[1] {\textcolor{BrickRed}{\begin{quote}#1\end{quote}}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% inicio do documento
+\begin{document}
+
+
+\author{
+  Bruno Ferreira\\
+  {\small A61055}
+  \and
+  Cláduia Oliveira\\
+  {\small A60987}\\
+  \and
+   Duarte Duarte\\
+  {\small A61001}\\
+  \and
+  Fábio Gomes\\
+  {\small A61065}\\
+}
+
+\title{Licenciatura Engenharia Informática	\\  Comunicação por Computadores  \\ Trabalho Prático Nº2}
+\date{\today \\ Universidade do Minho}
+
+\maketitle
+
+
+\smallskip
+\noindent \textbf{Resumo} O presente trabalho foi desenvolvido no âmbito da Unidade Curricular de Comunicações por Computador e tem como principal objetivo a implementação de um serviço de mensagens curtas sobre IPv6. Onde a implementação assenta em dois protocolos: um para descobrir rotas e os nosso vizinhos e o envio de mensagens a esse mesmos vizinhos.
+
+\smallskip
+\noindent \textbf{Palavras-Chaves} AdHoc, JAVA, Core, UDP
+
+%\tableofcontents
+%\listoffigures 
+
+\section{Introdução}
+	Quando temos uma rede estruturada temos que todos os nós que a ela pertencem possuem um papel especial pois são eles que entre si criam o chamado "mapa" da rede de modo a que cada nó fique a saber como é que a rede se encontra distribuída.
+	
+	Neste trabalho é pretendido que seja criada uma rede \textit{AdHoc}, onde todos os nós comunicam entre si de modo a termos por exemplo um no A e onde este conhece todos os seus vizinhos.
+	
+	É pretendido que com desenvolvimento desta aplicação, seja possível o envio de mensagens curtas entre dois nós específicos.
+
+	A nossa aplicação será desenvolvida em JAVA e o teste da topologia utilizada será testada usando o core.
+
+\newpage
+\section{Especificação do Protocolo}
+O conceito de Rede \textit{AdHoc} remonta as décadas de 70 quando o exercito americano viu a necessidade de comunicar via rádio num ambiente militar, onde a função base era a mobilidade e a comunicação dos dispositivos.
+	Atualmente as mesmas redes não são apenas usadas como fins militares mas também como conferências e busca e salvamento.
+	O fato de tais redes terem tanto interesse nelas deve-se a estas não necessitarem de uma estrutura fixa para poderem funcionar o que leva a uma rápida implementação.
+	Esta situação torna-se vantajosa quando a implementação da rede não pode estar "assente" em infraestruturas devido a segurança, custo, etc..
+	Assim, uma rede de computadores ad hoc é aquela na qual todos os terminais funcionam como routers enviando a mensagem que recebe para nós vizinhos que conheça.
+	O protocolo que iremos desenvolver irá assentar neste pressupostos, ou seja, a aplicação terá N nodos espalhados por uma área em que cada nó conhece nós que se encontram perto de si.
+	Quando um nó recebe uma mensagem que não é para si mas para um dos seus vizinhos encaminha-a para esse vizinho.
+	Utilizamos o Core para simular uma rede ad hoc facilitando assim a fase de teste não precisando assim de uma rede física para testar se a aplicação funciona e identificar possíveis lacunas.
+
+
+\subsection{Primitivas de Comunicação}
+
+\subsection{Formato das Mensagens Protocolares(PDU)}
+\subsection{Interações}
+
+\section{Implementação}
+\subsection{Detalhes, Parâmetros, Bibliotecas de Funções}
+
+\section{Testes e Resultados}
+\section{Conclusões e Trabalho Futuro}
+
+\end{document}
