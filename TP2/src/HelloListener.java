@@ -112,6 +112,7 @@ class HelloListener extends Thread {
 
                         DatagramSocket s = new DatagramSocket(0);
 
+                        //Cria um Route Reply
                         RouteReplyPacket resposta = new RouteReplyPacket(routerep);
 
                         resposta.incNsaltos();//Incrementar o número de saltos
@@ -145,6 +146,62 @@ class HelloListener extends Thread {
                                 }
                             }
                         }
+                    }
+
+                } else if (routerep != null) {
+
+                    //System.out.println("[Listener" + id + "] Got package!");
+                    System.out.println("Recebi um RouteReplyPacket");
+
+                    String meuinet = InetAddress.getLocalHost().toString();
+                    int salto = 0;
+
+                    if (routerep.getNsaltos() != routerep.getRota().size())//Se não for o último
+                    {
+                        String str = "";
+                        //Verificar se já veio por aqui
+                        for (String st : routerep.getRota()) {
+
+                            //está na direção certa ? Ou será percorrer inversamente ?
+                            if (salto == routerep.getNsaltos()) {//Encontrar o próximo nodo
+                                str = st;
+                                break;//Sai do ciclo e em 's' tem o endereço para enviar
+                            }
+                            salto++;
+                        }
+                        int tenho_na_lista = 0;
+                        for (String viz : tabela.getVizinhos()) {
+                            if (viz.compareTo(str) == 0)//Se está na lista de vizinhos
+                            {
+                                tenho_na_lista = 1;
+                            }
+                        }
+
+                        if (tenho_na_lista == 1) {
+                            break;// Se não está na lista de vizinhos descarta
+                        }
+
+                        InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
+
+                        DatagramSocket s = new DatagramSocket(0);
+
+                        //Cria um Route Reply
+                        RouteReplyPacket resposta = new RouteReplyPacket(routerep);
+
+                        resposta.incNsaltos();//Incrementar o número de saltos
+
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ObjectOutputStream oos = new ObjectOutputStream(baos);
+                        oos.writeObject(resposta);
+                        byte[] aEnviar = baos.toByteArray();
+
+                        //System.out.println("[Listener" + id + "] Respondeu.");
+                        System.out.println("Enviei um RouteReplyPacket");
+
+                        DatagramPacket p2 = new DatagramPacket(aEnviar, aEnviar.length, InetAddress.getByName(str), 999);
+
+                        s.send(p2);
+                        s.close();
                     }
 
                 }
