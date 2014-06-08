@@ -66,16 +66,12 @@ class HelloListener extends Thread {
                 //System.out.println("[listener] get stream");
                 ByteArrayInputStream bais = new ByteArrayInputStream(buf);
                 ObjectInputStream ois = new ObjectInputStream(bais);
-                Object o = ois.readObject();
+                UnknownPacket packet = (UnknownPacket)ois.readObject();
 
-                HelloPacket pacote = null;
-                RouteReplyPacket routerep = null;
-                RouteRequestPacket routereq = null;
-
-                pacote = (HelloPacket) o;
-                routerep = (RouteReplyPacket) o;
-                routereq = (RouteRequestPacket) o;
-
+                HelloPacket pacote = packet.getHelloPacket();
+                RouteReplyPacket routerep = packet.getRouteReplyPacket();
+                RouteRequestPacket routereq = packet.getRouteRequestPacket();
+                
                 if (pacote != null) {
                     //System.out.println("[Listener" + id + "] Got package!");
                     System.out.println("Recebi um HelloPacket");

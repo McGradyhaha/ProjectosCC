@@ -2,7 +2,7 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class HelloPacket implements Serializable {
+public class HelloPacket extends UnknownPacket implements Serializable {
 
     private final ArrayList<String> vizinhos;
     public boolean responder = true;
@@ -18,5 +18,20 @@ public class HelloPacket implements Serializable {
     @Override
     public String toString() {
         return "Conheço os (#" + vizinhos.size() + "): " + vizinhos.toString();
+    }
+
+    @Override
+    public HelloPacket getHelloPacket() {
+        return (HelloPacket)this;
+    }
+
+    @Override
+    public RouteReplyPacket getRouteReplyPacket() {
+        return null;
+    }
+
+    @Override
+    public RouteRequestPacket getRouteRequestPacket() {
+        return null;
     }
 }

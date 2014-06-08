@@ -2,7 +2,7 @@
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class RouteRequestPacket implements Serializable {
+public class RouteRequestPacket extends UnknownPacket implements Serializable {
 
     private final ArrayList<String> rota;
     private int nsaltos, maxsaltos;
@@ -72,5 +72,20 @@ public class RouteRequestPacket implements Serializable {
     @Override
     public String toString() {
         return "Conheço o percurso (#" + rota.size() + "): " + rota.toString();
+    }
+    
+    @Override
+    public HelloPacket getHelloPacket() {
+        return null;
+    }
+
+    @Override
+    public RouteReplyPacket getRouteReplyPacket() {
+        return null;
+    }
+
+    @Override
+    public RouteRequestPacket getRouteRequestPacket() {
+        return (RouteRequestPacket)this;
     }
 }
