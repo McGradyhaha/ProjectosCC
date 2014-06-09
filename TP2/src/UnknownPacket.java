@@ -12,4 +12,5 @@ public abstract class UnknownPacket {
     public abstract HelloPacket getHelloPacket();
     public abstract RouteReplyPacket getRouteReplyPacket();
     public abstract RouteRequestPacket getRouteRequestPacket();
+    public abstract Message getMessage();
 }

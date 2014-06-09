@@ -1,5 +1,7 @@
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Stack;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -12,6 +14,8 @@ import java.util.ArrayList;
  * @author Chalkos
  */
 public class Messages {
+    private static final int MSG_TIMEOUT = 20;
+    
     private static final ArrayList<Message> messages = new ArrayList<>();
     
     /**
@@ -19,15 +23,43 @@ public class Messages {
      * @param m 
      */
     public static void addMessage(Message m){
+        m.timestamp = System.currentTimeMillis();
         messages.add(m);
-        new RouteRequestPacket(m.destino).sendRequest();
+        new RouteRequestPacket(m.origem, m.destino).sendRequest();
     }
     
-    public static void routeMessage(String origem, String destino, ArrayList<String> nodos){
+    public static void sendMessage(String origem, String destino, ArrayList<String> nodos){
+        Message mensagem = null;
+        
+        // remover o IP de origem porque não vai ser usado
+        nodos.remove(0);
+        
         for(Message m : messages){
             if(m.origem.equals(origem) && m.destino.equals(destino)){
                 m.nodos = nodos;
+                mensagem = m;
             }
         }
+        
+        if( mensagem == null )
+            return;
+        
+        mensagem.sendMessage();
+    }
+    
+    public static synchronized void removeTimedOut(){
+        Long now = System.currentTimeMillis();
+        //ArrayList<Integer> indices = new ArrayList<>();
+        Stack<Integer> indices = new Stack<>();
+        
+        for(int i=0; i<messages.size(); i++){
+            Message m = messages.get(i);
+            if(m.timestamp + MSG_TIMEOUT*1000 > now)
+                //indices.add(i);
+                indices.push(i);
+        }
+        
+        for(int i : indices)
+            messages.remove(i);
     }
 }

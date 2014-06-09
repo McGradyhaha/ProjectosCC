@@ -18,6 +18,7 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
     private final ArrayList<String> rota;
     private int maxsaltos;
     private String destino;
+    private String origem;
 
     public RouteRequestPacket(ArrayList<String> rota, int nsaltos, int maxsaltos, String destino) {
         this.rota = rota;
@@ -30,10 +31,15 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
         this.maxsaltos = 30;
     }
 
-    public RouteRequestPacket(String destino) {
+    public RouteRequestPacket(String origem, String destino) {
         this.rota = new ArrayList<>();
         this.maxsaltos = 30;
         this.destino = destino;
+        this.origem = origem;
+    }
+
+    public String getOrigem() {
+        return origem;
     }
 
     public RouteRequestPacket(RouteRequestPacket pacote) {
@@ -148,5 +154,10 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
     @Override
     public RouteRequestPacket getRouteRequestPacket() {
         return (RouteRequestPacket)this;
+    }
+
+    @Override
+    public Message getMessage() {
+        return null;
     }
 }

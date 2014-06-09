@@ -73,31 +73,48 @@ class HelloListener extends Thread {
         }
     }
     
-    public void handleRouteRequest(DatagramPacket recv, RouteRequestPacket routereq){
+    public void handleRouteRequest(RouteRequestPacket routereq){
         //System.out.println("[Listener" + id + "] Got package!");
         System.out.println("Recebi um RouteRequestPacket");
         System.out.println(routereq.getRota().toString());
         
-        
-        // se o destino não for eu
         if( routereq.isForMe() ){
+            // se o destino for eu
             System.out.println("Sou o destino do routeRequest!!!");
             routereq.addMeToRoute();
-            new RouteReplyPacket(routereq.getRota()).sendReply();
+            new RouteReplyPacket(
+                    routereq.getRota(),
+                    routereq.getOrigem(),
+                    routereq.getDestino()
+            ).sendReply();
         }else
             routereq.sendRequest();
     }
     
-    public void handleRouteReply(DatagramPacket recv, RouteReplyPacket routerep){
+    public void handleRouteReply(RouteReplyPacket routerep){
         System.out.println("Recebi um RouteReplyPacket");
         System.out.println("Nodo Actual (#" + routerep.getNodoAtual() + "): " + routerep.getAtual());
         
         if( routerep.getNodoAtual() == 0 ){
             // chegou ao nodo que enviou o request
             System.out.println("Tenho um caminho!");
-            
+            Messages.sendMessage(
+                    routerep.getNomeOrigem(),
+                    routerep.getNomeDestino(),
+                    routerep.getRota()
+            );
         }else
             routerep.sendReply();
+    }
+    
+    public void handleMessage(Message msg){
+        System.out.println("Recebida mensagem.");
+        
+        if( msg.isForMe() ){
+            System.out.println("Mensagem de " + msg.origem + " para " + msg.destino + "\n" + msg.text);
+            // it is done.
+        }else
+            msg.sendMessage();
     }
 
     @Override
@@ -120,14 +137,16 @@ class HelloListener extends Thread {
                 HelloPacket pacote = packet.getHelloPacket();
                 RouteReplyPacket routerep = packet.getRouteReplyPacket();
                 RouteRequestPacket routereq = packet.getRouteRequestPacket();
+                Message mensagem = packet.getMessage();
                 
                 if (pacote != null)
                     handleHelloPacket(recv, pacote);
                 else if (routereq != null)
-                    handleRouteRequest(recv, routereq);
-                else if (routerep != null) {
-                    handleRouteReply(recv, routerep);
-                }
+                    handleRouteRequest(routereq);
+                else if (routerep != null)
+                    handleRouteReply(routerep);
+                else if (mensagem != null)
+                    handleMessage(mensagem);
             } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(HelloListener.class.getName()).log(Level.SEVERE, null, ex);
             }

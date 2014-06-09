@@ -13,6 +13,7 @@ public class HelloMaintenance extends Thread{
     public void run() {
         while(true){
             tabela.removerPerdidos();
+            Messages.removeTimedOut();
             
             try {
                 sleep(1000);

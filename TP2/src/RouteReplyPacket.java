@@ -13,12 +13,24 @@ import java.util.logging.Logger;
 
 public class RouteReplyPacket extends UnknownPacket implements Serializable {
 
+    public String getNomeOrigem() {
+        return nomeOrigem;
+    }
+
+    public String getNomeDestino() {
+        return nomeDestino;
+    }
+
     private ArrayList<String> rota;
     private int nodoAtual;
+    private String nomeOrigem;
+    private String nomeDestino;
 
-    public RouteReplyPacket(ArrayList<String> nodos) {
+    public RouteReplyPacket(ArrayList<String> nodos, String nomeOrigem, String nomeDestino) {
         this.rota = nodos;
         this.nodoAtual = nodos.size()-1;
+        this.nomeOrigem = nomeOrigem;
+        this.nomeDestino = nomeDestino;
     }
 
     public ArrayList<String> getRota() {
@@ -93,6 +105,11 @@ public class RouteReplyPacket extends UnknownPacket implements Serializable {
 
     @Override
     public RouteRequestPacket getRouteRequestPacket() {
+        return null;
+    }
+
+    @Override
+    public Message getMessage() {
         return null;
     }
 }

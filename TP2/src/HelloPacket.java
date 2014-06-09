@@ -34,4 +34,9 @@ public class HelloPacket extends UnknownPacket implements Serializable {
     public RouteRequestPacket getRouteRequestPacket() {
         return null;
     }
+
+    @Override
+    public Message getMessage() {
+        return null;
+    }
 }
