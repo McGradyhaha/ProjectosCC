@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -41,11 +43,7 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
     }
     
     public boolean isForMe(){
-        String myAddr = Utilities.getOwnIP();
-        return (
-                destino.equals(myAddr) ||
-                Utilities.trimZoneIndice(myAddr).equals(Utilities.trimZoneIndice(destino))
-               );
+        return Utilities.getName().equals(destino);
     }
     
     /**
@@ -59,7 +57,7 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
      */
     public static boolean sendRequest(RouteRequestPacket req, HelloTable tabela){
         // Não fazer nada se o request já tiver passado por aqui (loop na rede)
-        String myAddr = Utilities.getOwnIP();
+        String myAddr = Utilities.getIPv6();
         for(String passou : req.rota){
             if(passou.equals(myAddr))
                 return false;
@@ -76,8 +74,11 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
         // Enviar o RouteRequestPacket para todos os vizinhos
         try {
             System.out.println("Enviando RouteRequestPacket..");
-            // Request
-            DatagramSocket s = new DatagramSocket(0);
+            
+            MulticastSocket s = new MulticastSocket();
+            s.setInterface(Utilities.getInetAddress());
+            s.setTimeToLive(1);
+            s.joinGroup(HelloMain.group);
             
             RouteRequestPacket request = req;//new RouteRequestPacket("fe80:0:0:0:200:ff:feaa:2");
             
@@ -91,16 +92,17 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
             for( InetAddress addr : tabela.getVizinhosAddr() )
                 try {
                     s.send(
-                            new DatagramPacket(aEnviar, aEnviar.length, addr, 9999)
+                            //new DatagramPacket(aEnviar, aEnviar.length, addr, 9999)
+                            new DatagramPacket(aEnviar, aEnviar.length, InetAddress.getByName(addr.getHostAddress()), 9999)
                     );
                     System.out.println("Enviei um RouteRequestPacket para " + addr.getHostAddress());
                 } catch (IOException ex) {
                     System.out.println("Falha ao enviar RouteRequestPacket para " + addr.getHostAddress());
                     Logger.getLogger(RouteRequestPacket.class.getName()).log(Level.SEVERE, null, ex);
                 }
-            
             s.close();
             return true;
+            
         } catch (SocketException ex) {
             Logger.getLogger(RouteRequestPacket.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {

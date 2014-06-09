@@ -46,10 +46,10 @@ class HelloListener extends Thread {
     private void handleHelloPacket(DatagramPacket recv, HelloPacket pacote){
         try {
             //System.out.println("[Listener" + id + "] Got package!");
-            System.out.println("Recebi um HelloPacket");
+            //System.out.println("Recebi um HelloPacket");
             
             this.tabela.novaEntrada(recv.getAddress().getHostAddress(), pacote.getVizinhos());
-            
+            /* não é preciso resposta porque todos os nodos vão enviar a sua lista em multicast
             if( pacote.responder ){
                 // 0 - qualquer porta livre (isto é a porta local, não é relevante e pode ser qualquer)
                 DatagramSocket s = new DatagramSocket(0);
@@ -67,7 +67,7 @@ class HelloListener extends Thread {
                 
                 s.send(p);
                 s.close();
-            }
+            }*/
         } catch (IOException ex) {
             Logger.getLogger(HelloListener.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -77,18 +77,15 @@ class HelloListener extends Thread {
         //System.out.println("[Listener" + id + "] Got package!");
         System.out.println("Recebi um RouteRequestPacket");
 
-        if( !routereq.getRota().isEmpty() ){
+        
             System.out.println(routereq.getRota().toString());
-            System.exit(0);
-        }
+            //System.exit(0);
         
         // se o destino não for eu
         if( routereq.isForMe() )
             System.out.println("Sou o destino do routeRequest!!!");
         else
             RouteRequestPacket.sendRequest(routereq, tabela);
-
-        
     }
 
     @Override
@@ -101,7 +98,7 @@ class HelloListener extends Thread {
                 mSocket.receive(recv);
                 
                 // se o datagrama recebido tiver origem na própria máquina, ignorar
-                if( Utilities.getOwnIP().equals(recv.getAddress().getHostAddress()) ) continue;
+                if( Utilities.getIPv6().equals(recv.getAddress().getHostAddress()) ) continue;
 
                 //System.out.println("[listener] get stream");
                 ByteArrayInputStream bais = new ByteArrayInputStream(buf);

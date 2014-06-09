@@ -42,7 +42,7 @@ class HelloMulticaster extends Thread {
 
                 // enviar por todas as interfaces de rede
                 while (interfaces.hasMoreElements()) {
-                    s = new MulticastSocket(9999);
+                    s = new MulticastSocket();
 
                     NetworkInterface ni = (NetworkInterface) interfaces.nextElement();
 
@@ -70,12 +70,10 @@ class HelloMulticaster extends Thread {
                     s.send(p);
                     
                     //teste: enviar do A0 para o A2
-                    System.out.println("My own ip:" + Utilities.trimZoneIndice(Utilities.getOwnIP()));
-                    if( !Utilities.trimZoneIndice(Utilities.getOwnIP()).endsWith(":0") )
+                    if( !Utilities.getName().equals("A0") )
                         continue;
 
-                    RouteRequestPacket request = new RouteRequestPacket("fe80:0:0:0:200:ff:feaa:2%23");
-                    RouteRequestPacket.sendRequest(request, tabela);
+                    Messages.addMessage(new Message("A0", "A2", "Olá, tudo bem?"));
 
                 }
             } catch (UnknownHostException ex) {

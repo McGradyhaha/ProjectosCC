@@ -15,6 +15,10 @@ import java.util.ArrayList;
 public class HelloMain {
 
     public static final int numero_hello_listeners = 10;
+    
+    public static InetAddress group;
+    
+    public static HelloTable tabela;
 
     public static void main(String[] args) throws Exception {
 
@@ -38,7 +42,7 @@ public class HelloMain {
         }
 
         // hello manutenção da tabela
-        HelloTable tabela = new HelloTable();
+        tabela = new HelloTable();
         HelloMaintenance maint = new HelloMaintenance(tabela);
         maint.start();
 
@@ -47,7 +51,7 @@ public class HelloMain {
 
         // hello escutar e responder
         MulticastSocket mSocket = new MulticastSocket(9999);
-        InetAddress group = InetAddress.getByName("FF02::1");
+        group = InetAddress.getByName("FF02::1");
         mSocket.joinGroup(group);
 
         ArrayList<HelloListener> listeners = new ArrayList<>();

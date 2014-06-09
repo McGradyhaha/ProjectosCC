@@ -31,8 +31,13 @@ public class HelloTable {
     }
     
     public synchronized void print(){
-        System.out.print("\033[H\033[2J"); //clear console
+        //System.out.print("\033[H\033[2J"); //clear console
+        System.out.println("");
+        System.out.println("");
+        System.out.println("");
+        System.out.println("-----[ clear ]-----");
         System.out.flush();
+        System.out.println("Hi, my name is " + Utilities.getName() + " and my ip is " + Utilities.getIPv6());
         System.out.println("[tabela] recebido:");
         for( String chave : vizinhos.keySet()){
             System.out.println("   " + chave + " (age: " + (System.currentTimeMillis()-tempos.get(chave))/1000 + " s)");
