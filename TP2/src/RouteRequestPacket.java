@@ -40,6 +40,14 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
         this.destino = pacote.getDestino();
     }
     
+    public boolean isForMe(){
+        String myAddr = Utilities.getOwnIP();
+        return (
+                destino.equals(myAddr) ||
+                Utilities.trimZoneIndice(myAddr).equals(Utilities.trimZoneIndice(destino))
+               );
+    }
+    
     /**
      * Incrementar o numero de saltos
      * Não fazer nada se ultrapassar o numero máximo de saltos
