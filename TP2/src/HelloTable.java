@@ -1,7 +1,12 @@
 
 import java.io.IOException;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HelloTable {
     public static final int HELLO_TIMEOUT = 3; //segundos
@@ -55,5 +60,26 @@ public class HelloTable {
     
     public ArrayList<String> getVizinhos(){
         return new ArrayList<>(vizinhos.keySet());
+    }
+    
+    public ArrayList<InetAddress> getVizinhosAddr(){
+        ArrayList<InetAddress> res = new ArrayList<>();
+        for(String s : getVizinhos()){
+            try {
+                res.add(InetAddress.getByName(s));
+            } catch (UnknownHostException ex) {
+                System.out.println("Não conseguiu converter: " + s);
+                Logger.getLogger(HelloTable.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return res;
+    }
+    
+    public ArrayList<String> getVizinhosSemZona(){
+        ArrayList<String> res = new ArrayList<>();
+        for(String s : getVizinhos()){
+            res.add(Utilities.trimZoneIndice(s));
+        }
+        return res;
     }
 }

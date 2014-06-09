@@ -9,6 +9,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,24 +45,15 @@ class HelloListener extends Thread {
 
     @Override
     public void run(){
+        boolean skip;
         while(true) {
             try {
                 //System.out.println("[listener] get datagram packet");
                 DatagramPacket recv = new DatagramPacket(buf, buf.length); 
                 mSocket.receive(recv);
-
-
-                // se o datagrama recebido tiver origem num dos endereços da própria máquina, ignorar
-                Enumeration<NetworkInterface> interfaces =  NetworkInterface.getNetworkInterfaces();
-                while( interfaces.hasMoreElements() && recv != null ){
-                    Enumeration<InetAddress> addresses = interfaces.nextElement().getInetAddresses();
-                    while( addresses.hasMoreElements() && recv != null)
-                        if( recv.getAddress().getHostAddress().equals(addresses.nextElement().getHostAddress()))
-                            recv = null;
-                }
-                if(recv == null) continue;
-
-                String enviado_por = recv.getAddress().toString();//Saber quem enviou o Pacote
+                
+                // se o datagrama recebido tiver origem na própria máquina, ignorar
+                if( Utilities.getOwnIP().equals(recv.getAddress().getHostAddress()) ) continue;
 
                 //System.out.println("[listener] get stream");
                 ByteArrayInputStream bais = new ByteArrayInputStream(buf);
@@ -111,17 +103,22 @@ class HelloListener extends Thread {
 
                     //System.out.println("[Listener" + id + "] Got package!");
                     System.out.println("Recebi um RouteRequestPacket");
-
-                    String meuinet = InetAddress.getLocalHost().toString();
-
-                    //Verificar se já veio por aqui
-                    for (String s : routereq.getRota()) {
-                        if (s.compareTo(meuinet) == 0)//Já passou por cá
-                        {
-                            break;//Pára tudo
-                        }
+                    
+                    if( !routereq.getRota().isEmpty() ){
+                        System.out.println(routereq.getRota().toString());
+                        System.exit(0);
                     }
-
+                    
+                    //Verificar se já veio por aqui
+                    String meuinet = Utilities.getOwnIP();//InetAddress.getLocalHost().toString();
+                    
+                    skip = false;
+                    for (String s : routereq.getRota())
+                        if( meuinet.equals(s))
+                            skip = true;
+                    if(skip) continue;
+                    
+                    
                     if (routereq.getMaxSaltos() > routereq.getNsaltos()) {//Ainda não está no último
 
                         InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
@@ -130,7 +127,6 @@ class HelloListener extends Thread {
 
                         //Cria um Route Reply
                         RouteReplyPacket resposta = new RouteReplyPacket(routerep);
-
                         resposta.incNsaltos();//Incrementar o número de saltos
                         resposta.addNodo(meuinet);//Não sei se é INET ou MAC
 

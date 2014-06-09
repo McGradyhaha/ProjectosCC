@@ -68,25 +68,14 @@ class HelloMulticaster extends Thread {
 
                     DatagramPacket p = new DatagramPacket(aEnviar, aEnviar.length, group, 9999);
                     s.send(p);
+                    
+                    //teste: enviar do A0 para o A2
+                    System.out.println("My own ip:" + Utilities.trimZoneIndice(Utilities.getOwnIP()));
+                    if( !Utilities.trimZoneIndice(Utilities.getOwnIP()).endsWith(":0") )
+                        continue;
 
-                    // Request
-                    DatagramSocket s = new DatagramSocket(0);
-
-                    RouteRequestPacket resposta = new RouteRequestPacket();
-
-                    ByteArrayOutputStream baost = new ByteArrayOutputStream();
-                    ObjectOutputStream oost = new ObjectOutputStream(baost);
-                    oost.writeObject(resposta);
-
-                    //System.out.println("[Listener" + id + "] Respondeu.");
-                    System.out.println("Enviei um RouteRequestPacket");
-
-                    byte[] aEnviar2 = baost.toByteArray();
-
-                    DatagramPacket p2 = new DatagramPacket(aEnviar2, aEnviar2.length, group, 9999);
-
-                    s.send(p2);
-                    s.close();
+                    RouteRequestPacket request = new RouteRequestPacket("fe80:0:0:0:200:ff:feaa:2%23");
+                    RouteRequestPacket.sendRequest(request, tabela);
 
                 }
             } catch (UnknownHostException ex) {
