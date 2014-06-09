@@ -76,16 +76,28 @@ class HelloListener extends Thread {
     public void handleRouteRequest(DatagramPacket recv, RouteRequestPacket routereq){
         //System.out.println("[Listener" + id + "] Got package!");
         System.out.println("Recebi um RouteRequestPacket");
-
+        System.out.println(routereq.getRota().toString());
         
-            System.out.println(routereq.getRota().toString());
-            //System.exit(0);
         
         // se o destino não for eu
-        if( routereq.isForMe() )
+        if( routereq.isForMe() ){
             System.out.println("Sou o destino do routeRequest!!!");
-        else
-            RouteRequestPacket.sendRequest(routereq, tabela);
+            routereq.addMeToRoute();
+            new RouteReplyPacket(routereq.getRota()).sendReply();
+        }else
+            routereq.sendRequest();
+    }
+    
+    public void handleRouteReply(DatagramPacket recv, RouteReplyPacket routerep){
+        System.out.println("Recebi um RouteReplyPacket");
+        System.out.println("Nodo Actual (#" + routerep.getNodoAtual() + "): " + routerep.getAtual());
+        
+        if( routerep.getNodoAtual() == 0 ){
+            // chegou ao nodo que enviou o request
+            System.out.println("Tenho um caminho!");
+            
+        }else
+            routerep.sendReply();
     }
 
     @Override
@@ -114,60 +126,7 @@ class HelloListener extends Thread {
                 else if (routereq != null)
                     handleRouteRequest(recv, routereq);
                 else if (routerep != null) {
-
-                    //System.out.println("[Listener" + id + "] Got package!");
-                    System.out.println("Recebi um RouteReplyPacket");
-
-                    String meuinet = InetAddress.getLocalHost().toString();
-                    int salto = 0;
-
-                    if (routerep.getNsaltos() != routerep.getRota().size())//Se não for o último
-                    {
-                        String str = "";
-                        //Verificar se já veio por aqui
-                        for (String st : routerep.getRota()) {
-
-                            //está na direção certa ? Ou será percorrer inversamente ?
-                            if (salto == routerep.getNsaltos()) {//Encontrar o próximo nodo
-                                str = st;
-                                break;//Sai do ciclo e em 's' tem o endereço para enviar
-                            }
-                            salto++;
-                        }
-                        int tenho_na_lista = 0;
-                        for (String viz : tabela.getVizinhos()) {
-                            if (viz.compareTo(str) == 0)//Se está na lista de vizinhos
-                            {
-                                tenho_na_lista = 1;
-                            }
-                        }
-
-                        if (tenho_na_lista == 1) {
-                            break;// Se não está na lista de vizinhos descarta
-                        }
-
-                        InetAddress dest = InetAddress.getByName(recv.getAddress().getHostName());
-
-                        DatagramSocket s = new DatagramSocket(0);
-
-                        //Cria um Route Reply
-                        RouteReplyPacket resposta = new RouteReplyPacket(routerep);
-
-                        resposta.incNsaltos();//Incrementar o número de saltos
-
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        ObjectOutputStream oos = new ObjectOutputStream(baos);
-                        oos.writeObject(resposta);
-                        byte[] aEnviar = baos.toByteArray();
-
-                        //System.out.println("[Listener" + id + "] Respondeu.");
-                        System.out.println("Enviei um RouteReplyPacket");
-
-                        DatagramPacket p2 = new DatagramPacket(aEnviar, aEnviar.length, InetAddress.getByName(str), 999);
-
-                        s.send(p2);
-                        s.close();
-                    }
+                    handleRouteReply(recv, routerep);
                 }
             } catch (IOException | ClassNotFoundException ex) {
                 Logger.getLogger(HelloListener.class.getName()).log(Level.SEVERE, null, ex);

@@ -46,6 +46,10 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
         return Utilities.getName().equals(destino);
     }
     
+    public void addMeToRoute(){
+        rota.add(Utilities.getIPv6());
+    }
+    
     /**
      * Incrementar o numero de saltos
      * Não fazer nada se ultrapassar o numero máximo de saltos
@@ -55,20 +59,20 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
      * @param req O request original
      * @param tabela A tabela de vizinhos
      */
-    public static boolean sendRequest(RouteRequestPacket req, HelloTable tabela){
+    public boolean sendRequest(){
         // Não fazer nada se o request já tiver passado por aqui (loop na rede)
         String myAddr = Utilities.getIPv6();
-        for(String passou : req.rota){
+        for(String passou : rota){
             if(passou.equals(myAddr))
                 return false;
         }
         
         // Incrementar o numero de saltos
         // Adicionar-se à lista de sitios por onde o request passou
-        req.rota.add(myAddr);
+        rota.add(myAddr);
         
         // Não fazer nada se ultrapassar o numero máximo de saltos
-        if( req.getNsaltos() > req.maxsaltos )
+        if( getNsaltos() >= maxsaltos )
             return false;
         
         // Enviar o RouteRequestPacket para todos os vizinhos
@@ -80,21 +84,16 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
             s.setTimeToLive(1);
             s.joinGroup(HelloMain.group);
             
-            RouteRequestPacket request = req;//new RouteRequestPacket("fe80:0:0:0:200:ff:feaa:2");
-            
             ByteArrayOutputStream baost = new ByteArrayOutputStream();
             ObjectOutputStream oost = new ObjectOutputStream(baost);
-            oost.writeObject(request);
+            oost.writeObject(this);
             
             byte[] aEnviar = baost.toByteArray();
             
             //enviar para todos os vizinhos
-            for( InetAddress addr : tabela.getVizinhosAddr() )
+            for( InetAddress addr : HelloMain.tabela.getVizinhosAddr() )
                 try {
-                    s.send(
-                            //new DatagramPacket(aEnviar, aEnviar.length, addr, 9999)
-                            new DatagramPacket(aEnviar, aEnviar.length, InetAddress.getByName(addr.getHostAddress()), 9999)
-                    );
+                    s.send(new DatagramPacket(aEnviar, aEnviar.length, InetAddress.getByName(addr.getHostAddress()), 9999));
                     System.out.println("Enviei um RouteRequestPacket para " + addr.getHostAddress());
                 } catch (IOException ex) {
                     System.out.println("Falha ao enviar RouteRequestPacket para " + addr.getHostAddress());
@@ -129,10 +128,6 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
 
     public int getNsaltos() {
         return rota.size();
-    }
-
-    public void addNodo(String nodo) {
-        this.rota.add(nodo);
     }
 
     @Override

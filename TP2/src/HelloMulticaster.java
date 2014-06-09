@@ -10,6 +10,7 @@ import java.net.NetworkInterface;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,7 +75,6 @@ class HelloMulticaster extends Thread {
                         continue;
 
                     Messages.addMessage(new Message("A0", "A2", "Olá, tudo bem?"));
-
                 }
             } catch (UnknownHostException ex) {
                 Logger.getLogger(HelloMulticaster.class.getName()).log(Level.SEVERE, null, ex);

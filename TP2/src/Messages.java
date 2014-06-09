@@ -20,8 +20,7 @@ public class Messages {
      */
     public static void addMessage(Message m){
         messages.add(m);
-        RouteRequestPacket request = new RouteRequestPacket(m.destino);
-        RouteRequestPacket.sendRequest(request, HelloMain.tabela);
+        new RouteRequestPacket(m.destino).sendRequest();
     }
     
     public static void routeMessage(String origem, String destino, ArrayList<String> nodos){
