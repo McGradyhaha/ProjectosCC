@@ -15,7 +15,7 @@ import java.util.Stack;
  * @author Chalkos
  */
 public class Messages {
-    private static final int MSG_TIMEOUT = 20;
+    private static final int MSG_TIMEOUT = 10;
     
     private static final ArrayList<Message> messages = new ArrayList<>();
     
