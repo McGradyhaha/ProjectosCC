@@ -67,6 +67,23 @@ public class HelloTable {
         return new ArrayList<>(vizinhos.keySet());
     }
     
+    public ArrayList<String> getVizinhosNaoVisitados(ArrayList<String> visitados){
+        ArrayList<String> res = new ArrayList<>();
+        
+        boolean visto;
+        for( String vizinho : vizinhos.keySet() ){
+            visto = false;
+            for( String visitado : visitados )
+                if( Utilities.trimZoneIndice(vizinho).equals(Utilities.trimZoneIndice(visitado)) )
+                    visto = true;
+            
+            if(!visto)
+                res.add(vizinho);
+        }
+        
+        return res;
+    }
+    
     public ArrayList<InetAddress> getVizinhosAddr(){
         ArrayList<InetAddress> res = new ArrayList<>();
         for(String s : getVizinhos()){

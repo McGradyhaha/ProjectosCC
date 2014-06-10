@@ -97,12 +97,12 @@ public class RouteRequestPacket extends UnknownPacket implements Serializable {
             byte[] aEnviar = baost.toByteArray();
             
             //enviar para todos os vizinhos
-            for( InetAddress addr : HelloMain.tabela.getVizinhosAddr() )
+            for( String addr : HelloMain.tabela.getVizinhosNaoVisitados(rota) )
                 try {
-                    s.send(new DatagramPacket(aEnviar, aEnviar.length, InetAddress.getByName(addr.getHostAddress()), 9999));
-                    System.out.println("Enviei um RouteRequestPacket para " + addr.getHostAddress());
+                    s.send(new DatagramPacket(aEnviar, aEnviar.length, InetAddress.getByName(addr), 9999));
+                    System.out.println("Enviei um RouteRequestPacket para " + addr);
                 } catch (IOException ex) {
-                    System.out.println("Falha ao enviar RouteRequestPacket para " + addr.getHostAddress());
+                    System.out.println("Falha ao enviar RouteRequestPacket para " + addr);
                     Logger.getLogger(RouteRequestPacket.class.getName()).log(Level.SEVERE, null, ex);
                 }
             s.close();
