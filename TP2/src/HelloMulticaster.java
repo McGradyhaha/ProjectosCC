@@ -63,7 +63,7 @@ class HelloMulticaster extends Thread {
                     oos.writeObject(pacote);
 
                     //System.out.println("[Caster] Enviando vizinhos..");
-                    tabela.print();
+                    //tabela.print();
 
                     byte[] aEnviar = baos.toByteArray();
 
@@ -71,10 +71,10 @@ class HelloMulticaster extends Thread {
                     s.send(p);
                     
                     //teste: enviar do A0 para o A2
-                    if( !Utilities.getName().equals("A0") )
-                        continue;
+                    //if( !Utilities.getName().equals("A0") )
+                    //    continue;
 
-                    Messages.addMessage(new Message("A0", "A2", "Olá, tudo bem?"));
+                    //Messages.addMessage(new Message("A0", "A2", "Olá, tudo bem?"));
                 }
             } catch (UnknownHostException ex) {
                 Logger.getLogger(HelloMulticaster.class.getName()).log(Level.SEVERE, null, ex);

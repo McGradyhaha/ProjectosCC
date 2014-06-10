@@ -105,7 +105,7 @@ class HelloListener extends Thread {
         
         if( msg.isForMe() ){
             System.out.println("Mensagem de " + msg.origem + " para " + msg.destino + "\n" + msg.text);
-            HelloMain.tw.out.println("Mensagem de " + msg.origem + " para " + msg.destino + "\n" + msg.text);
+            HelloMain.tw.twWrite("#" + msg.origem + ": " + msg.text);
         }else
             msg.sendMessage();
     }

@@ -20,14 +20,30 @@ import java.util.logging.Logger;
  */
 public class TWListener extends Thread{
     public ServerSocket welcomeSocket;
-    public PrintWriter out;
+    private PrintWriter out = null;
+    
+    public void twWrite(String texto){
+        if( out != null && !out.checkError() )
+            out.println(texto);
+    }
     
     public TWListener(ServerSocket ss){
         welcomeSocket = ss;
     }
     
     private static void handleInput(String input){
+        if( !input.startsWith("TW #") )
+            return;
         
+        input = input.substring(4);
+        String destino = input.substring(0, input.indexOf(' '));
+        String mensagem = input.substring(input.indexOf(' ')+1);
+        
+        if(destino.isEmpty() || mensagem.isEmpty())
+            return;
+        
+        // em principio aqui trata-se de uma mensagem válida, enviar
+        Messages.addMessage(new Message(Utilities.getName(), destino, mensagem));
     }
     
     @Override
@@ -42,6 +58,7 @@ public class TWListener extends Thread{
                 // se tiver coisas para ler, lê
                 handleInput(in.readLine());
                 //out.println(resposta);
+                
             }
         } catch (IOException ex) {
             Logger.getLogger(TWListener.class.getName()).log(Level.SEVERE, null, ex);

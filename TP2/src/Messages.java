@@ -1,6 +1,7 @@
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Stack;
 
 /*
@@ -28,7 +29,7 @@ public class Messages {
         new RouteRequestPacket(m.origem, m.destino).sendRequest();
     }
     
-    public static void sendMessage(String origem, String destino, ArrayList<String> nodos){
+    public synchronized static void sendMessage(String origem, String destino, ArrayList<String> nodos){
         Message mensagem = null;
         
         // remover o IP de origem porque não vai ser usado
@@ -44,6 +45,7 @@ public class Messages {
         if( mensagem == null )
             return;
         
+        messages.remove(mensagem);
         mensagem.sendMessage();
     }
     
@@ -51,15 +53,22 @@ public class Messages {
         Long now = System.currentTimeMillis();
         //ArrayList<Integer> indices = new ArrayList<>();
         Stack<Integer> indices = new Stack<>();
+        //ArrayList<String> nomes = new ArrayList<>();
+        HashSet<String> nomes = new HashSet<>();
         
         for(int i=0; i<messages.size(); i++){
             Message m = messages.get(i);
-            if(m.timestamp + MSG_TIMEOUT*1000 > now)
+            if(m.timestamp + MSG_TIMEOUT*1000 < now){
                 //indices.add(i);
                 indices.push(i);
+                nomes.add(m.destino);
+            }
         }
         
         for(int i : indices)
             messages.remove(i);
+        
+        for(String nome : nomes)
+            HelloMain.tw.twWrite("O " + nome + " não está acessível.");
     }
 }
