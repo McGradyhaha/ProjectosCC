@@ -1,4 +1,4 @@
-\documentclass[11pt, a4paper, oneside]{article}
+\documentclass{llncs}
 
 % hifenização e outras especificações para português
 \usepackage[portuguese]{babel}
@@ -46,32 +46,31 @@
 %% inicio do documento
 \begin{document}
 
-
-\author{
-  Bruno Ferreira\\
-  {\small A61055}
-  \and
-  Cláduia Oliveira\\
-  {\small A60987}\\
-  \and
-   Duarte Duarte\\
-  {\small A61001}\\
-  \and
-  Fábio Gomes\\
-  {\small A61065}\\
-}
-
 \title{Licenciatura Engenharia Informática	\\  Comunicação por Computadores  \\ Trabalho Prático Nº2}
-\date{\today \\ Universidade do Minho}
+
+\author{Bruno Ferreira,Cláudia Oliveira, Duarte Duarte, Fábio Gomes}
+
+\institute{Universidade do Minho}
+
 
 \maketitle
 
 
-\smallskip
-\noindent \textbf{Resumo} O presente trabalho foi desenvolvido no âmbito da Unidade Curricular de Comunicações por Computador e tem como principal objetivo a implementação de um serviço de mensagens curtas sobre IPv6. Onde a implementação assenta em dois protocolos: um para descobrir rotas e os nosso vizinhos e o envio de mensagens a esse mesmos vizinhos.
+\begin{abstract}
+
+O presente trabalho foi desenvolvido no âmbito da Unidade Curricular de Comunicações por Computador e tem como principal objetivo a implementação de um serviço de mensagens curtas sobre IPv6. Onde a implementação assenta em dois protocolos: um para descobrir rotas e os nosso vizinhos e o envio de mensagens a esse mesmos vizinhos.
+
+\end{abstract}
+
+
+\begin{tabular}{ll}
+\textbf{Palavras-Chaves} AdHoc, JAVA, Core, UDP
+\end{tabular}
+
 
 \smallskip
-\noindent \textbf{Palavras-Chaves} AdHoc, JAVA, Core, UDP
+
+
 
 %\tableofcontents
 %\listoffigures 
@@ -98,14 +97,171 @@ O conceito de Rede \textit{AdHoc} remonta as décadas de 70 quando o exercito am
 
 
 \subsection{Primitivas de Comunicação}
+As primitivas que foram implementadas foram: \texttt{Hello}, o \texttt{Route Request} e o \texttt{Message} onde este 3 no final permitem criar o funcionamento de uma rede Ad Hoc.
+
 
 \subsection{Formato das Mensagens Protocolares(PDU)}
+O formato que as nossas mensagens protocolares usam para serem enviadas de um nó para outro é o seguinte:
+
+Estas são enviadas com os seguintes campos:
+\begin{itemize}
+\item Origem - String que identifica a origem de onde sai a mensagem,
+\item Destino - String que identifica qual o router ao qual a mensagem se destina;
+\item Texto - String que corresponde ao corpo da mensagem;
+\item Nodos - Nós por onde a mensagem vai passar (Previamente calculados como RouteRequestPacket).
+\end{itemize}
+
+
 \subsection{Interações}
+As iterações que nós temos são um nó possui uma tabela com os seus vizinhos, onde daqui pode fazer as seguintes operações:
+\begin{itemize}
+\item Enviar mensagens - Premite enviar um mensagem para um nós especifico da rede;
+\item Enviar um route reply - Resposta que um nó recebe quando envia um route reuqest ;
+\item Enviar um route request - Serve para "perguntar" à rede qual a rota necessária para chegar do meu nó até ao nodo X.
+\end{itemize}
+
+Isto são as operações que um determinado router pode fazer com outros routers, mas no entanto este encontra-se sempre a "fazer operações" nas suas tabelas de vizinhos.
+
+As operações que este faz nessa tabela são:
+\begin{itemize}
+\item Escuta - é a ação que é executada quando a rede se encontra em funcionamento isto é o router possui a rede mas está à espera de que esta mude a qualquer momento dai ele ter esta opção para testar passado um x tempo o estado atual da rede;
+\item Manutenção - A manutenção da tabela está relacionado com o fato de ser necessário em alguns dos caso atualizar a tabela de vizinho, isto é, podemos ter caso em que temos de remover nós que se lá encontravam ou netão adicionar novo nós que apareceram na rede ;
+\item Consulta - Serve para que quando uma mensagem chega ao router mas no entanto esta não é para ele, ele pode usa a tabela para determinar o próximo router.
+\end{itemize}
 
 \section{Implementação}
-\subsection{Detalhes, Parâmetros, Bibliotecas de Funções}
 
+Durante a fase de implementação surgem  sempre aquelas dúvidas de se a nossa implementação atual é a melhor se o tipo que estamos a usar serve na melhor maneira para representar o que pretendemos.
+
+Por isso começámos por definir o protocolo Hello, pois é onde fazemos a "inicialização" da rede isto é, criamos as tabelas que cada nó possui e à medida que este vai começando a preenche-las começa a saber quais os vizinhos de cada nó.
+
+Depois temos o Route onde se desmembra e request de pedir informação e de reply responde a pergunta que foi feita.
+
+O message é a definição de como é que construimos os datagramas UDP que são enviados entre routers.
+
+\subsection{Detalhes, Parâmetros, Bibliotecas de Funções}
+As bibliotecas que foram utilizadas para o desenvolvimento do projeto foram as que permitem trabalhar com datagramas UDP.
+Usamos as funções de ArrayLists e HashMaps para podermos processar o armazenamento dos vizinhos de um determinado ip.
+Entre outras bibliotecas que permitem tratar o envio de UDP numa rede.
+
+API que utilizamos para a implementação do projeto:
+\begin{verbatim}
+--HelloPacket--
+public HelloPacket(ArrayList<String> vizinhos);
+public ArrayList<String> getVizinhos();
+public String toString();
+public HelloPacket getHelloPacket();
+public RouteReplyPacket getRouteReplyPacket();
+public RouteRequestPacket getRouteRequestPacket();
+
+--HelloListener--
+public HelloListener(HelloTable tabela, MulticastSocket mSocket);
+public HelloListener(HelloTable tabela, MulticastSocket mSocket, int id);
+private void handleHelloPacket(DatagramPacket recv, HelloPacket pacote);
+public void handleRouteRequest(DatagramPacket recv, RouteRequestPacket routereq);
+public void run();
+
+--HelloMain--
+ public static void main(String[] args) throws Exception;
+
+--HelloMaintenance--
+public class HelloMaintenance extends Thread();
+public void run();
+
+--HelloMulticaster--
+public HelloMulticaster(HelloTable tabela);
+public void run();
+
+--HelloPacket--
+public HelloPacket(ArrayList<String> vizinhos);
+public ArrayList<String> getVizinhos();
+public String toString();
+public HelloPacket getHelloPacket();
+public RouteReplyPacket getRouteReplyPacket();
+public RouteRequestPacket getRouteRequestPacket();
+
+--HelloTable--
+public HelloTable();
+public synchronized void novaEntrada
+	(String origem, ArrayList<String> novos) throws IOException;
+public synchronized void print();
+public synchronized void removerPerdidos();
+
+--Message--
+public Message(String origem, String destino, String texto);
+
+--Messages--
+public static void addMessage(Message m);
+public static void routeMessage
+	(String origem, String destino, ArrayList<String> nodos);
+
+--RequestMain--
+public RequestMain(HelloTable tabela);
+public void run();
+
+--RouteReplyPacket
+public RouteReplyPacket(ArrayList<String> nodos);
+public ArrayList<String> getRota();
+public String getAtual() ;
+public boolean sendReply();
+public int getNodoAtual();
+public String toString();
+public HelloPacket getHelloPacket();
+public RouteReplyPacket getRouteReplyPacket();
+public RouteRequestPacket getRouteRequestPacket();
+
+
+--RouteRequestPacket--
+public RouteRequestPacket
+	(ArrayList<String> rota, int nsaltos, int maxsaltos, String destino);
+public RouteRequestPacket();
+public RouteRequestPacket(String destino);
+public RouteRequestPacket(RouteRequestPacket pacote);
+public boolean isForMe();
+public static boolean sendRequest();
+public boolean isForMe();
+public String getDestino();
+public int getMaxSaltos();
+public int getNsaltos();
+public String toString();
+public HelloPacket getHelloPacket();
+public RouteReplyPacket getRouteReplyPacket();
+public RouteRequestPacket getRouteRequestPacket();
+public void addMeToRoute();
+
+
+--UnknowPaket--
+public abstract HelloPacket getHelloPacket();
+public abstract RouteReplyPacket getRouteReplyPacket();
+public abstract RouteRequestPacket getRouteRequestPacket();
+
+\end{verbatim}
+
+Os parâmetros que as funções recebem estão diretamente relacionados com a sua execução, por exemplo ao termos o envio de uma mensagem os parametros que esta recebe são a origem da mensagem, o destino da mesma e os nodos para onde estamos a enviar a mensagem.
 \section{Testes e Resultados}
+
 \section{Conclusões e Trabalho Futuro}
 
+Após a conclusão deste porjeto, podemos concluir que grande parte dos seus objetivos iniciais foram cumpridos com sucesso.
+
+A implementação numa primeria fase passou pela implementação do protocolo Hello, onde o tipo das mensagens enviadas era simples strings para teste.
+Depois seguiram-se mais dois protocolos os de route request que ia "analisar" a rede para fazer a atualização de novos nós ou a de perda de nós e por fim temos o protocolo de mensagens que é onde codificamos a estruturas da mensagens que seriam enviadas e processadas para chegarem do nó origem até ao nó destino.
+
+Como trabalho futuro poderia ser a implementação de uma interface gráfica que facilita a interpretação e interação com a mesma seria também uma mais valia.
+
+
+
+
+\begin{thebibliography}{1}
+\bibitem{AD}
+http://en.wikipedia.org/wiki/Ad\_hoc
+\bibitem{PDU}
+
+http://pt.wikipedia.org/wiki/User\_Datagram\_Protocol
+
+\bibitem{DATA}
+http://download.java.net/jdk7/archive/b123/docs/api/java/net/DatagramSocket.html?is-external=true
+
+
+\end{thebibliography}
 \end{document}
