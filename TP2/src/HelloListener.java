@@ -20,10 +20,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 class HelloListener extends Thread {
-
-    SimpleDateFormat ssd = new SimpleDateFormat();
-    GregorianCalendar sdd = new GregorianCalendar();
-
     public HelloTable tabela;
 
     private MulticastSocket mSocket;
@@ -33,9 +29,6 @@ class HelloListener extends Thread {
     public HelloListener(HelloTable tabela, MulticastSocket mSocket) {
         this.tabela = tabela;
         this.mSocket = mSocket;
-        StringBuilder sddd = new StringBuilder();
-
-        sdd.add(Calendar.YEAR, MIN_PRIORITY);
     }
 
     public HelloListener(HelloTable tabela, MulticastSocket mSocket, int id) {
@@ -73,7 +66,7 @@ class HelloListener extends Thread {
         }
     }
     
-    public void handleRouteRequest(RouteRequestPacket routereq){
+    private void handleRouteRequest(RouteRequestPacket routereq){
         //System.out.println("[Listener" + id + "] Got package!");
         System.out.println("Recebi um RouteRequestPacket");
         System.out.println(routereq.getRota().toString());
@@ -91,7 +84,7 @@ class HelloListener extends Thread {
             routereq.sendRequest();
     }
     
-    public void handleRouteReply(RouteReplyPacket routerep){
+    private void handleRouteReply(RouteReplyPacket routerep){
         System.out.println("Recebi um RouteReplyPacket");
         System.out.println("Nodo Actual (#" + routerep.getNodoAtual() + "): " + routerep.getAtual());
         
@@ -107,19 +100,18 @@ class HelloListener extends Thread {
             routerep.sendReply();
     }
     
-    public void handleMessage(Message msg){
+    private void handleMessage(Message msg){
         System.out.println("Recebida mensagem.");
         
         if( msg.isForMe() ){
             System.out.println("Mensagem de " + msg.origem + " para " + msg.destino + "\n" + msg.text);
-            // it is done.
+            HelloMain.tw.out.println("Mensagem de " + msg.origem + " para " + msg.destino + "\n" + msg.text);
         }else
             msg.sendMessage();
     }
 
     @Override
     public void run(){
-        boolean skip;
         while(true) {
             try {
                 //System.out.println("[listener] get datagram packet");

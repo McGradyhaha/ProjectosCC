@@ -22,7 +22,7 @@ public class Messages {
      * Guarda uma mensagem e inicia a procura de uma rota para a entregar
      * @param m 
      */
-    public static void addMessage(Message m){
+    public synchronized static void addMessage(Message m){
         m.timestamp = System.currentTimeMillis();
         messages.add(m);
         new RouteRequestPacket(m.origem, m.destino).sendRequest();

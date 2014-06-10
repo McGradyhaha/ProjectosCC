@@ -1,6 +1,8 @@
 
+import com.sun.jmx.remote.internal.ServerCommunicatorAdmin;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 
 /*
@@ -19,28 +21,11 @@ public class HelloMain {
     public static InetAddress group;
     
     public static HelloTable tabela;
+    
+    public static TWListener tw;
 
     public static void main(String[] args) throws Exception {
-
-        ArrayList<String> lista = new ArrayList<>();
-        //RouteReplyPacket pa = new RouteReplyPacket(lista);
-        //System.out.println("next:" + pa.getNext() + "\n");
-
-        boolean onlyListener = false;
-        boolean onlyCaster = false;
-
-        for (String arg : args) {
-            if (arg.compareTo("listen") == 0) {
-                onlyListener = true;
-                break;
-            }
-
-            if (arg.compareTo("cast") == 0) {
-                onlyCaster = true;
-                break;
-            }
-        }
-
+        
         // hello manutenção da tabela
         tabela = new HelloTable();
         HelloMaintenance maint = new HelloMaintenance(tabela);
@@ -55,28 +40,29 @@ public class HelloMain {
         mSocket.joinGroup(group);
 
         ArrayList<HelloListener> listeners = new ArrayList<>();
-
         for (int i = 0; i < numero_hello_listeners; i++) {
             listeners.add(new HelloListener(tabela, mSocket, i));
         }
+        
+        ServerSocket twSocket = new ServerSocket(9999);
+        tw = new TWListener(twSocket);
+        
+        caster.start();
 
-        // iniciar listener ou caster de acordo com os argumentos
-        if (onlyCaster || (onlyListener == false && onlyCaster == false)) {
-            caster.start();
+        for (HelloListener listener : listeners) {
+            listener.start();
         }
-
-        if (onlyListener || (onlyListener == false && onlyCaster == false)) {
-            for (HelloListener listener : listeners) {
-                listener.start();
-            }
-        }
+        
+        tw.start();
 
         // fechar sockets e parar threads
         Shutdown shutdownHook = new Shutdown();
         shutdownHook.sockets.add(mSocket);
         shutdownHook.threads.add(maint);
         shutdownHook.threads.add(caster);
+        shutdownHook.threads.add(tw);
         shutdownHook.threads.addAll(listeners);
+        shutdownHook.serverSockets.add(twSocket);
         Runtime.getRuntime().addShutdownHook(shutdownHook);
     }
 }
