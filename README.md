@@ -1,4 +1,4 @@
 ProjectosCC
 ===========
 
-https://bitbucket.org/chalkos/volta-ao-mundo-em-80-perguntas/wiki/Comandos%20Git
+Projectos de Comunicações por Computador, Licenciatura em Engenharia Informática, Universidade do Minho, 2013/2014
